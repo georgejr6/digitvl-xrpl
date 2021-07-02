@@ -1,0 +1,30 @@
+{% autoescape off %}
+Welcome {{brand_name}},
+
+We’re so excited that you are here!
+Tailorie is on a mission to help brands and consumers discover one another — providing meaningful introductions is our specialty. You’ll find authentic storytelling is at the heart of the Tailorie platform and we are thrilled to tell yours.
+
+
+Upload Your Brand Intro Video
+Now that you’ve completed the onboarding process, the next step is to upload your brand intro video. This step is required to activate your Tailorie profile.
+
+Videos are incredibly popular and effective.
+Consumers truly want to know you, so we encourage you to make videos that represent your brand authentically. No need to hire a professional! A phone and your story is all you need to get started.
+
+
+What’s Next?
+The Tailorie app is set to launch soon! This gives you time to create your video(s). If needed, you can also modify the brand profile you created during onboarding.
+
+
+Our team is here to help!
+We know new things can drum up a few questions so email us at join@tailorie.com if anything comes up!
+
+
+Happy Tailoring!
+– The Tailorie Team
+
+
+©2020 Tailorie. All right reserved.
+12 South 3rd Street, Grand Forks, ND 58201
+
+{% endautoescape %}

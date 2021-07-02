@@ -1,0 +1,59 @@
+[
+{
+    "model": "accounts.user",
+    "pk": 5,
+    "fields": {
+        "last_login": "2020-11-15T09:49:23.422Z",
+        "is_superuser": true,
+        "first_name": "",
+        "last_name": "",
+        "is_staff": true,
+        "is_active": true,
+        "date_joined": "2020-10-15T19:33:59.650Z",
+        "email": "admin3@gmail.com",
+        "password": "pbkdf2_sha256$216000$5EUoVTyz6rcb$Y0fUT/OblkD/OfF5sfZ8mf7e7p/8QLD3x9RyZFF+3Kk=",
+        "username": "admin3",
+        "phone_number": null,
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "accounts.user",
+    "pk": 26,
+    "fields": {
+        "last_login": null,
+        "is_superuser": false,
+        "first_name": "junaid",
+        "last_name": "iqbal",
+        "is_staff": false,
+        "is_active": true,
+        "date_joined": "2020-11-09T12:59:50.312Z",
+        "email": "juni@gmail.com",
+        "password": "pbkdf2_sha256$216000$LABWArqmZx71$kUsW/R0kbh1GtnOsjccEFNiFtjspCp9ELX8ToI09Unk=",
+        "username": "junaid35",
+        "phone_number": "+923431442704",
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "accounts.user",
+    "pk": 27,
+    "fields": {
+        "last_login": null,
+        "is_superuser": false,
+        "first_name": "junaid",
+        "last_name": "iqbal",
+        "is_staff": false,
+        "is_active": true,
+        "date_joined": "2020-11-09T16:40:29.897Z",
+        "email": "muiez@gmail.com",
+        "password": "pbkdf2_sha256$216000$NzBwo1Us0KSo$iI6yu4hf2rcgAYbd/PaPMu4jp3cOqU36YEUpUOMG4QA=",
+        "username": "muiez5",
+        "phone_number": null,
+        "groups": [],
+        "user_permissions": []
+    }
+}
+]

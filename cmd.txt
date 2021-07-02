@@ -1,0 +1,9 @@
+
+celery -A marketplace worker --loglevel=info -P solo
+
+stripe listen --forward-to localhost:8000/stripe/webhook/
+
+
+@method_decorator(transaction.non_atomic_requests, name='dispatch')
+
+python manage.py runserver_plus --cert-file cert.crt

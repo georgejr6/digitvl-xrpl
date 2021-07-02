@@ -1,0 +1,270 @@
+[
+{
+    "model": "beats.songs",
+    "pk": 39,
+    "fields": {
+        "user": 12,
+        "slug": "robots",
+        "song_title": "Robots",
+        "genre": "",
+        "description": "Robots",
+        "photo_main": "photos/2020/10/21/mwosa_-_c808s_album_cover.jpg",
+        "audio_file": "songs/2020/10/21/01_-_Robots.mp3",
+        "duration_seconds": 259,
+        "price": "0.00",
+        "created_at": "2020-10-21T17:02:50.405Z",
+        "updated_at": "2020-10-21T17:02:50.405Z",
+        "total_likes": 0,
+        "users_like": []
+    }
+},
+{
+    "model": "beats.songs",
+    "pk": 40,
+    "fields": {
+        "user": 12,
+        "slug": "all-i-got-feat-joel-bleu",
+        "song_title": "All I Got (feat. Joel Bleu)",
+        "genre": "",
+        "description": "All I Got (feat. Joel Bleu)",
+        "photo_main": "photos/2020/10/21/mwosa_-_c808s_album_cover_PkfloI2.jpg",
+        "audio_file": "songs/2020/10/21/02_-_All_I_Got.mp3",
+        "duration_seconds": 192,
+        "price": "0.00",
+        "created_at": "2020-10-21T17:04:46.278Z",
+        "updated_at": "2020-10-21T17:14:10.411Z",
+        "total_likes": 1,
+        "users_like": [
+            8
+        ]
+    }
+},
+{
+    "model": "beats.songs",
+    "pk": 41,
+    "fields": {
+        "user": 12,
+        "slug": "outside-looking-in-feat-jg",
+        "song_title": "Outside Looking In (feat. JG)",
+        "genre": "",
+        "description": "Outside Looking In (feat. JG)",
+        "photo_main": "photos/2020/10/21/mwosa_-_c808s_album_cover_NH5F5yv.jpg",
+        "audio_file": "songs/2020/10/21/03_-_Outside_Looking_In_feat._JG.mp3",
+        "duration_seconds": 244,
+        "price": "0.00",
+        "created_at": "2020-10-21T17:19:16.622Z",
+        "updated_at": "2020-10-21T17:19:16.622Z",
+        "total_likes": 0,
+        "users_like": []
+    }
+},
+{
+    "model": "beats.songs",
+    "pk": 42,
+    "fields": {
+        "user": 12,
+        "slug": "freakin-it",
+        "song_title": "Freakin It",
+        "genre": "",
+        "description": "Freakin It",
+        "photo_main": "photos/2020/10/21/mwosa_-_c808s_album_cover_ovpZIFz.jpg",
+        "audio_file": "songs/2020/10/21/04_-_Freakin_It.mp3",
+        "duration_seconds": 189,
+        "price": "0.00",
+        "created_at": "2020-10-21T17:20:45.275Z",
+        "updated_at": "2020-10-21T17:20:45.275Z",
+        "total_likes": 0,
+        "users_like": []
+    }
+},
+{
+    "model": "beats.songs",
+    "pk": 43,
+    "fields": {
+        "user": 12,
+        "slug": "me-and-u-feat-vashti",
+        "song_title": "Me And U (feat. Vashti)",
+        "genre": "",
+        "description": "Me And U (feat. Vashti)",
+        "photo_main": "photos/2020/10/21/mwosa_-_c808s_album_cover_ZXCD0aH.jpg",
+        "audio_file": "songs/2020/10/21/05_-_Me_and_U_feat._Vashti.mp3",
+        "duration_seconds": 215,
+        "price": "0.00",
+        "created_at": "2020-10-21T17:22:05.417Z",
+        "updated_at": "2020-10-21T17:22:05.417Z",
+        "total_likes": 0,
+        "users_like": []
+    }
+},
+{
+    "model": "beats.songs",
+    "pk": 44,
+    "fields": {
+        "user": 12,
+        "slug": "463-til-i-reach-god",
+        "song_title": "463 Til I Reach God",
+        "genre": "",
+        "description": "463 Til I Reach God",
+        "photo_main": "photos/2020/10/21/mwosa_-_c808s_album_cover_7q4oiOS.jpg",
+        "audio_file": "songs/2020/10/21/06_-_463_Til_I_Reach_God.mp3",
+        "duration_seconds": 222,
+        "price": "0.00",
+        "created_at": "2020-10-21T17:23:49.391Z",
+        "updated_at": "2020-10-21T17:23:49.391Z",
+        "total_likes": 0,
+        "users_like": []
+    }
+},
+{
+    "model": "beats.songs",
+    "pk": 45,
+    "fields": {
+        "user": 12,
+        "slug": "cxncious-thoughts",
+        "song_title": "Cxncious Thoughts",
+        "genre": "",
+        "description": "Cxncious Thoughts",
+        "photo_main": "photos/2020/10/21/mwosa_-_c808s_album_cover_FcrCakW.jpg",
+        "audio_file": "songs/2020/10/21/07_-_Cxncious_Thoughts.mp3",
+        "duration_seconds": 180,
+        "price": "0.00",
+        "created_at": "2020-10-21T17:24:56.949Z",
+        "updated_at": "2020-10-21T17:24:56.949Z",
+        "total_likes": 0,
+        "users_like": []
+    }
+},
+{
+    "model": "beats.songs",
+    "pk": 46,
+    "fields": {
+        "user": 12,
+        "slug": "talks-with-god",
+        "song_title": "Talks With God",
+        "genre": "",
+        "description": "Talks With God",
+        "photo_main": "photos/2020/10/21/mwosa_-_c808s_album_cover_EMnB1TU.jpg",
+        "audio_file": "songs/2020/10/21/08_-_Talks_with_God.mp3",
+        "duration_seconds": 136,
+        "price": "0.00",
+        "created_at": "2020-10-21T17:26:05.789Z",
+        "updated_at": "2020-10-21T17:26:05.789Z",
+        "total_likes": 0,
+        "users_like": []
+    }
+},
+{
+    "model": "beats.songs",
+    "pk": 47,
+    "fields": {
+        "user": 12,
+        "slug": "hypo-critical",
+        "song_title": "Hypo Critical",
+        "genre": "",
+        "description": "Hypo Critical",
+        "photo_main": "photos/2020/10/21/reach_remastered.png",
+        "audio_file": "songs/2020/10/21/Hypo_Critical.mp3",
+        "duration_seconds": 89,
+        "price": "0.00",
+        "created_at": "2020-10-21T17:32:46.179Z",
+        "updated_at": "2020-10-21T17:32:46.179Z",
+        "total_likes": 0,
+        "users_like": []
+    }
+},
+{
+    "model": "beats.songs",
+    "pk": 48,
+    "fields": {
+        "user": 12,
+        "slug": "bittersweet",
+        "song_title": "Bittersweet",
+        "genre": "",
+        "description": "Bittersweet",
+        "photo_main": "photos/2020/10/21/reach_remastered_60twdII.png",
+        "audio_file": "songs/2020/10/21/Bittersweet..mp3",
+        "duration_seconds": 164,
+        "price": "0.00",
+        "created_at": "2020-10-21T17:33:36.345Z",
+        "updated_at": "2020-10-21T17:33:36.345Z",
+        "total_likes": 0,
+        "users_like": []
+    }
+},
+{
+    "model": "beats.songs",
+    "pk": 49,
+    "fields": {
+        "user": 12,
+        "slug": "midnight-marauder",
+        "song_title": "Midnight Marauder",
+        "genre": "",
+        "description": "Midnight Marauder",
+        "photo_main": "photos/2020/10/21/reach_remastered_dkPKYSt.png",
+        "audio_file": "songs/2020/10/21/Midnight_Marauder.mp3",
+        "duration_seconds": 170,
+        "price": "0.00",
+        "created_at": "2020-10-21T17:35:22.406Z",
+        "updated_at": "2020-10-21T17:35:22.407Z",
+        "total_likes": 0,
+        "users_like": []
+    }
+},
+{
+    "model": "beats.songs",
+    "pk": 50,
+    "fields": {
+        "user": 12,
+        "slug": "knock-my-sinnin",
+        "song_title": "Knock My Sinnin",
+        "genre": "",
+        "description": "Knock My Sinnin",
+        "photo_main": "photos/2020/10/21/reach_remastered_RqiQfne.png",
+        "audio_file": "songs/2020/10/21/4._Knock_My_Sinnin.mp3",
+        "duration_seconds": 246,
+        "price": "0.00",
+        "created_at": "2020-10-21T17:36:44.524Z",
+        "updated_at": "2020-10-21T17:36:44.524Z",
+        "total_likes": 0,
+        "users_like": []
+    }
+},
+{
+    "model": "beats.songs",
+    "pk": 51,
+    "fields": {
+        "user": 12,
+        "slug": "conundrum",
+        "song_title": "Conundrum",
+        "genre": "",
+        "description": "Conundrum",
+        "photo_main": "photos/2020/10/21/reach_remastered_gosS76u.png",
+        "audio_file": "songs/2020/10/21/5._Conundrum.mp3",
+        "duration_seconds": 247,
+        "price": "0.00",
+        "created_at": "2020-10-21T17:37:56.103Z",
+        "updated_at": "2020-10-21T17:37:56.103Z",
+        "total_likes": 0,
+        "users_like": []
+    }
+},
+{
+    "model": "beats.songs",
+    "pk": 52,
+    "fields": {
+        "user": 12,
+        "slug": "birth-of-malichi",
+        "song_title": "Birth of Malichi",
+        "genre": "",
+        "description": "Birth of Malichi",
+        "photo_main": "photos/2020/10/21/reach_remastered_UBcGWox.png",
+        "audio_file": "songs/2020/10/21/6._Birth_of_Malichi.mp3",
+        "duration_seconds": 181,
+        "price": "0.00",
+        "created_at": "2020-10-21T17:39:48.965Z",
+        "updated_at": "2020-10-21T17:39:48.965Z",
+        "total_likes": 0,
+        "users_like": []
+    }
+}
+]

@@ -1,0 +1,12 @@
+[
+{
+    "model": "subscriptions.membership",
+    "pk": 1,
+    "fields": {
+        "slug": "free",
+        "membership_type": "Free",
+        "price": 0,
+        "storage_size": 10800
+    }
+}
+]
