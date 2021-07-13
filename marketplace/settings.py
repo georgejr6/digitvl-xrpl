@@ -2,6 +2,7 @@ import os
 import datetime
 from pathlib import Path
 
+import stripe
 from celery import Celery
 from django.urls import reverse_lazy
 from celery.schedules import crontab
@@ -265,9 +266,9 @@ CELERY_BEAT_SCHEDULE = {
 
 
 # Stripe setting
-
-STRIPE_TEST_PUBLIC_KEY = os.getenv('STRIPE_PUBLISHABLE_KEY')
-STRIPE_TEST_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY')
+stripe.api_version = '2020-08-27'
+STRIPE_TEST_PUBLIC_KEY = 'pk_test_utELKNNX5QjQt9BTmkHlD71N00RZapjJeQ'
+STRIPE_TEST_SECRET_KEY = 'sk_test_4CgRjsXz5H9ntyJSCZ7bCC2400JmmfIpy0'
 STRIPE_LIVE_MODE = False  # Change to True in production
 DJSTRIPE_WEBHOOK_SECRET = "whsec_xxx"
 DJSTRIPE_USE_NATIVE_JSONFIELD = True

@@ -1,16 +1,19 @@
 # Create your views here.
+import os
+
 import redis
+import stripe
 from django.conf import settings
 from django.shortcuts import get_object_or_404
-from rest_framework import views, status, permissions
+from rest_framework import views, status
 from rest_framework.permissions import IsAuthenticated
 
 from accounts.models import User
-from accounts.permission import IsOwnerOrReadOnly
 from beats.models import Songs, PlayList
 from beats.permissions import IsSongUserOrReadOnly, IsPlaylistUserOrReadOnly
 from feeds.utils import create_action
 from .serializers import RedeemCoinsSerializer
+from redeemCoins.tasks import send_email_after_buying_coins
 
 # connect to redis
 redis_cache = redis.StrictRedis(host=settings.REDIS_HOST,
@@ -74,7 +77,14 @@ class RedeemCoinsForFeaturedPlaylist(views.APIView):
             # if user coins is 100, he can featured his track on featured tab view
             if int(current_coins) >= coins:
                 create_action(request.user, 'featured playlist', playlist_object, 5)
-                redis_cache.hincrby('users:{}:coins'.format(request.user.id), request.user.id, -coins)
+                current_coins = redis_cache.hincrby('users:{}:coins'.format(request.user.id), request.user.id, -coins)
+
+                user = get_object_or_404(User, email=request.user.email)
+
+                data = {'username': user.username, 'email': user.email, 'current_coins': int(current_coins)}
+
+                send_email_after_buying_coins.delay(data)
+
                 return views.Response({'status': True, "message": "playlist is added on featured"},
                                       status=status.HTTP_200_OK)
             else:
@@ -84,3 +94,66 @@ class RedeemCoinsForFeaturedPlaylist(views.APIView):
         except TypeError:
             return views.Response({'status': False, "message": "something wrong or may be you don't have any coin.",
                                    'result': {}}, status=status.HTTP_200_OK)
+
+
+class CreatePurchaseCoinsApiView(views.APIView):
+    stripe.api_key = settings.STRIPE_TEST_SECRET_KEY
+    permission_classes = [IsAuthenticated]
+    domain_url = "https://5dc252adc1bd.ngrok.io/"
+
+    def post(self, request, *args, **kwargs):
+        price = request.data['price']
+        try:
+            # Create new Checkout Session for the order
+            # Other optional params include:
+            # [billing_address_collection] - to display billing address details on the page
+            # [customer] - if you have an existing Stripe Customer ID
+            # [customer_email] - lets you prefill the email input in the form
+            # For full details see https:#stripe.com/docs/api/checkout/sessions/create
+
+            # ?session_id={CHECKOUT_SESSION_ID} means the redirect will have the session ID set as a query param
+
+            checkout_session = stripe.checkout.Session.create(
+                success_url='http://localhost:3000/successbuyc/{CHECKOUT_SESSION_ID}',
+                cancel_url='http://localhost:3000/cancelbuyc',
+                payment_method_types=['card'],
+                allow_promotion_codes=True,
+                mode='payment',
+                line_items=[{
+                    'price': 'price_1JAXgAI4e8u2GP8q67oEupda',
+                    'quantity': 1,
+
+                }],
+            )
+            print(checkout_session)
+            return views.Response(checkout_session, status=status.HTTP_200_OK)
+        except Exception as e:
+            return views.Response({'error': {'message': str(e)}})
+
+
+class GetPurchaseCoinsCheckoutSession(views.APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, session_id, *args, **kwargs):
+        try:
+            id = session_id
+            checkout_session = stripe.checkout.Session.retrieve(id)
+
+            line_items = stripe.checkout.Session.list_line_items(id, limit=1)
+            # print(line_items['data']['price']['id'])
+            print(line_items['data'][0]['price']['id'])
+
+            if line_items['data'][0]['price']['id'] == os.getenv('200_COIN_PRODUCT'):
+                coin_amount = redis_cache.hincrby('users:{}:coins'.format(request.user.id), request.user.id, 200)
+                resp_obj = dict(
+                    coin_amount=coin_amount,
+                    checkout_session=checkout_session
+
+                )
+
+                return views.Response(resp_obj, status=status.HTTP_200_OK)
+            else:
+                return views.Response({'error': {'message': 'no product found'}}, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return views.Response({'error': {'message': str(e)}}, status=status.HTTP_200_OK)

@@ -15,14 +15,6 @@ class MembershipSerializer(serializers.ModelSerializer):
 #         model = UserMembership
 #         e
 
-class UserMembershipSerializer(serializers.ModelSerializer):
-    membership = MembershipSerializer(read_only=True)
-
-    class Meta:
-        model = UserMembership
-        fields = ['id', 'user', 'membership', 'volume_remaining', 'customer']
-
-
 class StripeSubscriptionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subscription
@@ -30,9 +22,25 @@ class StripeSubscriptionSerializer(serializers.ModelSerializer):
 
 
 class UserSubscriptionSerializer(serializers.ModelSerializer):
-    user_membership = UserMembershipSerializer(read_only=True)
     subscription = StripeSubscriptionSerializer(read_only=True)
 
     class Meta:
         model = UserSubscription
-        fields = ['id', 'user_membership', 'subscription', 'get_created_date', 'get_next_billing_date']
+        fields = ['id', 'subscription', 'get_created_date', 'get_next_billing_date', 'subscription_badge']
+
+
+class UserMembershipSerializer(serializers.ModelSerializer):
+    membership = MembershipSerializer(read_only=True)
+    # user_membership_subscription = UserSubscriptionSerializer(read_only=True, many=True)
+    subscription_badge = serializers.SlugRelatedField(
+        source='user_membership_subscription',
+        slug_field='subscription_badge',
+        read_only=True,
+        many=True,
+
+    )
+
+    class Meta:
+        model = UserMembership
+        fields = ['id', 'user', 'membership', 'volume_remaining', 'customer',
+                  'subscription_badge']

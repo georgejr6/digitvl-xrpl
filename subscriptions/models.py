@@ -1,5 +1,3 @@
-from datetime import datetime
-
 import djstripe
 import stripe
 import logging
@@ -97,9 +95,10 @@ post_save.connect(post_save_user_membership_create, sender=settings.AUTH_USER_MO
 
 
 class UserSubscription(models.Model):
-    user_membership = models.ForeignKey(UserMembership, on_delete=models.CASCADE)
+    user_membership = models.ForeignKey(UserMembership, related_name="user_membership_subscription", on_delete=models.CASCADE)
     stripe_subscription_id = models.CharField(max_length=40, null=True, blank=True)
     subscription = models.ForeignKey(Subscription, null=True, blank=True, on_delete=models.SET_NULL)
+    subscription_badge = models.BooleanField(default=False)
     active = models.BooleanField(default=True)
 
     def __str__(self):
