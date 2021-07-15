@@ -110,6 +110,7 @@ class GetCheckoutSession(views.APIView):
 
             user_membership.membership = selected_membership
             user_membership.volume_remaining = selected_membership.storage_size
+            user_membership.subscription_badge = True
             user_membership.save()
 
             djstripe.models.Customer.sync_from_stripe_data(customer)

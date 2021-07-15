@@ -10,7 +10,8 @@ from django.template.loader import get_template
 from accounts.models import User, Contact
 from invitation.models import InviteUser
 
-app = Celery()
+app = Celery('marketplace', broker='redis://localhost:6379/0')
+
 # connect to redis
 redis_cache = redis.StrictRedis(host=settings.REDIS_HOST,
                                 port=settings.REDIS_PORT,

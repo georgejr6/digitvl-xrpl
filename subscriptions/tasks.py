@@ -10,7 +10,7 @@ from django.template.loader import get_template
 from accounts.models import User
 from celery.contrib import rdb
 
-app = Celery()
+app = Celery('marketplace', broker='redis://localhost:6379/0')
 
 
 #

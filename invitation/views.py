@@ -4,7 +4,7 @@ from rest_framework.response import Response
 
 from .serializers import InviteUserSerializer
 
-from .tasks import send_email_to_invite_user
+from invitation.tasks import send_email_to_invite_user
 # Create your views here.
 
 

@@ -18,7 +18,7 @@ from .permission import IsOwnerOrReadOnly
 from .serializers import (GetFullUserSerializer, UpdateProfileSerializer, UserSerializerWithToken,
                           EmailVerificationSerializer, ResetPasswordRequestSerializer, ResetPasswordSerializer,
                           Important_Notification)
-from .tasks import send_coin_to_referral_user, send_important_announcement
+from accounts.tasks import send_coin_to_referral_user, send_important_announcement, send_email_verification_token
 from .utils import Util
 
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
@@ -64,7 +64,7 @@ class UserList(APIView):
             data = {'email_body': email_body, 'to_email': user_data['email'], 'username': user_data['username'],
                     'email_subject': 'Verify your email'}
 
-            Util.send_email(data)
+            send_email_verification_token.delay(data)
             output = "Successfully accounts created, please check your provided email for verification."
             content = {'status': True, 'message': output}
             return Response(content, status=status.HTTP_200_OK)

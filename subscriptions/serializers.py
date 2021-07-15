@@ -26,19 +26,12 @@ class UserSubscriptionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserSubscription
-        fields = ['id', 'subscription', 'get_created_date', 'get_next_billing_date', 'subscription_badge']
+        fields = ['id', 'subscription', 'get_created_date', 'get_next_billing_date']
 
 
 class UserMembershipSerializer(serializers.ModelSerializer):
     membership = MembershipSerializer(read_only=True)
     # user_membership_subscription = UserSubscriptionSerializer(read_only=True, many=True)
-    subscription_badge = serializers.SlugRelatedField(
-        source='user_membership_subscription',
-        slug_field='subscription_badge',
-        read_only=True,
-        many=True,
-
-    )
 
     class Meta:
         model = UserMembership

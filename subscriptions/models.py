@@ -43,6 +43,7 @@ class UserMembership(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     customer = models.ForeignKey(Customer, null=True, blank=True, on_delete=models.SET_NULL)
+    subscription_badge = models.BooleanField(default=False)
 
     def __str__(self):
         return self.user.username
@@ -98,7 +99,6 @@ class UserSubscription(models.Model):
     user_membership = models.ForeignKey(UserMembership, related_name="user_membership_subscription", on_delete=models.CASCADE)
     stripe_subscription_id = models.CharField(max_length=40, null=True, blank=True)
     subscription = models.ForeignKey(Subscription, null=True, blank=True, on_delete=models.SET_NULL)
-    subscription_badge = models.BooleanField(default=False)
     active = models.BooleanField(default=True)
 
     def __str__(self):

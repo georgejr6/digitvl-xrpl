@@ -5,7 +5,7 @@ from django.template.loader import get_template
 from accounts.models import User
 
 
-app = Celery()
+app = Celery('marketplace', broker='redis://localhost:6379/0')
 
 
 @shared_task

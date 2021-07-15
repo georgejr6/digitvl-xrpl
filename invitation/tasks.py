@@ -3,7 +3,7 @@ from celery import shared_task, Celery
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import get_template
 
-app = Celery()
+app = Celery('marketplace', broker='redis://localhost:6379/0')
 
 
 @shared_task
