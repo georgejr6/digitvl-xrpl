@@ -159,34 +159,34 @@ class VerifyEmail(views.APIView):
     permission_classes = (permissions.AllowAny,)
 
     def post(self, request, *args, **kwargs):
-       # try:
-            result = request.data
-            token = request.POST.get('token')
+        # try:
+        result = request.data
+        token = request.POST.get('token')
 
-            # payload = jwt_decode_handler(token)
-            user = User.objects.get(email_verification_token=token)
-            #serializer = UserSerializerWithToken(user, context={'request': request})
-            if not user.is_email_verified:
-                user.is_email_verified = True
-                to_follow = User.objects.get(id=12)
+        # payload = jwt_decode_handler(token)
+        user = User.objects.get(email_verification_token=token)
+        # serializer = UserSerializerWithToken(user, context={'request': request})
+        if not user.is_email_verified:
+            user.is_email_verified = True
+            to_follow = User.objects.get(id=12)
 
-                obj_id = Contact.objects.get_or_create(
-                    user_from=user,
-                    user_to=to_follow)
+            obj_id = Contact.objects.get_or_create(
+                user_from=user,
+                user_to=to_follow)
 
-                data = {'username': user.username, 'user_email': user.email,
-                        'is_email_verified': user.is_email_verified}
+            data = {'username': user.username, 'user_email': user.email,
+                    'is_email_verified': user.is_email_verified}
 
-                # send_welcome_email.delay(data)
-                send_coin_to_referral_user(data)
-                user.save()
+            # send_welcome_email.delay(data)
+            send_coin_to_referral_user(data)
+            user.save()
 
-                return Response({'status': True, 'email': 'Successfully activated'}, status=status.HTTP_200_OK)
-            else:
-                return Response({'status': True, 'email': 'your account is already verified'},
-                                status=status.HTTP_200_OK)
-        # except Exception:
-        #     return Response({'status': False, 'error': 'please provide correct token'}, status=status.HTTP_200_OK)
+            return Response({'status': True, 'email': 'Successfully activated'}, status=status.HTTP_200_OK)
+        else:
+            return Response({'status': True, 'email': 'your account is already verified'},
+                            status=status.HTTP_200_OK)
+    # except Exception:
+    #     return Response({'status': False, 'error': 'please provide correct token'}, status=status.HTTP_200_OK)
 
 
 class ResetPasswordRequestView(views.APIView):
@@ -340,6 +340,19 @@ class SendAnnouncementEmail(views.APIView):
 
         resp_obj = dict(
             status=True, )
+        return views.Response(resp_obj, status=status.HTTP_200_OK)
+
+
+class GetAllUsersApiView(APIView):
+    queryset = User.objects.all()
+    serializer_class = GetFullUserSerializer
+
+    def get(self, request):
+        users = User.objects.all()
+        resp_obj = dict(
+            user_data=self.serializer_class(users, context={"request": request}, many=True).data,
+
+        )
         return views.Response(resp_obj, status=status.HTTP_200_OK)
 
 

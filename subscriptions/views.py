@@ -207,10 +207,53 @@ class GetCheckoutSessionData(views.APIView):
         try:
             user_membership_data = User.objects.filter(username=username)
             resp_obj = dict(
-                user_membership_data=self.serializer_class(user_membership_data, context={"request": request}, many=True).data,
+                user_membership_data=self.serializer_class(user_membership_data, context={"request": request},
+                                                           many=True).data,
 
             )
 
             return views.Response(resp_obj, status=status.HTTP_200_OK)
         except Exception as e:
             return views.Response({'error': {'message': str(e)}}, status=status.HTTP_200_OK)
+
+#
+# class WebhookReceivedAPiView(views.APIView):
+#     # You can use webhooks to receive information about asynchronous payment events.
+#     # For more about our webhook events check out https://stripe.com/docs/webhooks.
+#     def get(self, request, *args, **kwargs):
+#         webhook_secret = os.getenv('STRIPE_WEBHOOK_SECRET')
+#         request_data = request.data
+#
+#         if webhook_secret:
+#             # Retrieve the event by verifying the signature using the raw body and secret if webhook signing is
+#             # configured.
+#             signature = request.headers.get('stripe-signature')
+#             try:
+#                 event = stripe.Webhook.construct_event(
+#                     payload=request.data, sig_header=signature, secret=webhook_secret)
+#                 data = event['data']
+#             except Exception as e:
+#                 return e
+#             # Get the type of webhook event sent - used to check the status of PaymentIntents.
+#             event_type = event['type']
+#         else:
+#             data = request_data['data']
+#             event_type = request_data['type']
+#         data_object = data['object']
+#
+#         print('event ' + event_type)
+#
+#         if event_type == 'checkout.session.completed':
+#             print('🔔 Payment succeeded!')
+#
+#         if event_type == 'customer.subscription.deleted':
+#             print('🔔 subscription deleted')
+#
+#         if event_type == 'customer.subscription.updated':
+#             print('🔔 subscription updated')
+#
+#         if event_type == 'billing_portal.configuration.created':
+#             print(' handle billing portal info  ')
+#
+#         if event_type == 'billing_portal.configuration.updated':
+#             print(' billing portal updated ')

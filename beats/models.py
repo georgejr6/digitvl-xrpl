@@ -73,6 +73,10 @@ class Songs(models.Model):
         return self.user.membership_plan.volume_remaining
 
     @property
+    def get_subscription_badge(self):
+        return self.user.membership_plan.subscription_badge
+
+    @property
     def plays_count(self):
         return redis_cache.get('beat:{}:plays'.format(self.id))
 
@@ -160,6 +164,14 @@ class Comment(models.Model):
 
     class Meta:
         ordering = ('-created',)
+
+    @property
+    def get_subscription_badge(self):
+        return self.user.membership_plan.subscription_badge
+
+    @property
+    def username_slug(self):
+        return self.user.username_slug
 
     def __str__(self):
         return 'Comment by {} on {}'.format(self.commenter.username, self.beats)

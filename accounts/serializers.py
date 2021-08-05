@@ -19,21 +19,21 @@ class ProfileSerializer(serializers.ModelSerializer):
         model = Profile
         fields = ['id', 'username', 'username_slug', 'full_name', 'avatar', 'cover_photo', 'bio', 'location',
                   'birth_date', 'blue_tick_verified', 'website_link', 'instagram_link', 'facebook_link',
-                  'twitter_link', 'youtube_link', 'followers_count', 'following_count', 'track_count']
+                  'twitter_link', 'youtube_link', 'followers_count', 'following_count',
+                  'track_count', 'get_subscription_badge']
 
 
 class ChildProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = ['id', 'username', 'username_slug', 'avatar', 'blue_tick_verified', 'followers_count',
-                  'following_count',
-                  'track_count']
+                  'following_count', 'track_count', 'get_subscription_badge']
 
 
 class SecondChildProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
-        fields = ['id', 'username', 'username_slug', 'avatar']
+        fields = ['id', 'username', 'username_slug', 'avatar', 'get_subscription_badge']
 
 
 class ChildFullUserSerializer(serializers.ModelSerializer):

@@ -1,5 +1,4 @@
 # Create your views here.
-import json
 
 from django.db.models import Q
 from django.shortcuts import get_object_or_404

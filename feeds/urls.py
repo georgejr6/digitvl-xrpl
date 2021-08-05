@@ -1,9 +1,10 @@
 from django.urls import path
-from .views import UserFeeds, NotificationUnreadListApiView, NotificationReadApiView, GetFeaturedSongApiView
+from .views import UserFeeds, NotificationUnreadListApiView, NotificationReadApiView, GetFeaturedSongApiView, \
+    CurrentUserActionFeeds
 
 urlpatterns = [
     path('feeds/', UserFeeds.as_view(), name='user-feeds'),
-    path('feeds/current-user/', UserFeeds.as_view(), name='user-feeds'),
+    path('feeds/current-user/', CurrentUserActionFeeds.as_view(), name='user-feeds'),
     path('notification/', NotificationUnreadListApiView.as_view(), name='notification'),
     path('notification/read/', NotificationReadApiView.as_view(), name='notification-read'),
 

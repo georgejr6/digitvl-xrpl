@@ -2,7 +2,7 @@ from django.urls import path
 
 from .views import ProfileUpdateAPIView, UserList, LogoutView, current_user, my_login, VerifyEmail, \
     ResetPasswordRequestView, ResetPasswordView, CounterCoinsApiView, GetUserCoinsApiView, SendEmailNonVerifiedAccount, \
-    SendAnnouncementEmail
+    SendAnnouncementEmail, GetAllUsersApiView
 
 urlpatterns = [
     path('account/create/', UserList.as_view()),
@@ -20,6 +20,7 @@ urlpatterns = [
 
     path('account/send/email/unverified/', SendEmailNonVerifiedAccount.as_view(), name='non-verified-account'),
 
-    path('send/announcement/', SendAnnouncementEmail.as_view(), name='send-announcement')
+    path('send/announcement/', SendAnnouncementEmail.as_view(), name='send-announcement'),
+    path('users-data/', GetAllUsersApiView.as_view(), name='user-data')
 
 ]

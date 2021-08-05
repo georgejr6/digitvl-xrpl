@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'rest_framework',
     'accounts',
+    'announcement',
     'beats',
     'blogs',
     'feeds',

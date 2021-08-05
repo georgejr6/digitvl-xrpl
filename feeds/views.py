@@ -18,15 +18,17 @@ class UserFeeds(ListAPIView):
 
     def get(self, request, *args, **kwargs):
         # Display all actions by default
-        actions = self.queryset.exclude(user=self.request.user)
-        following_ids = self.request.user.following.values_list('id', flat=True)
-        if following_ids:
-            # If user is following others, retrieve only their actions
-            actions = actions.filter(user_id__in=following_ids)
+        # actions = self.queryset.exclude(user=self.request.user)
 
-        actions = actions.select_related('user__profile').prefetch_related('target', 'user__beats',
+        # following_ids = self.request.user.following.values_list('id', flat=True)
+        # if following_ids:
+        #     # If user is following others, retrieve only their actions
+        #     actions = actions.filter(user_id__in=following_ids)
+
+        actions = self.queryset.select_related('user__profile').prefetch_related('target', 'user__beats',
                                                                            'user__following').exclude(
             verb='featured songs')[:10]
+
         #
         # for user_actions in actions:
         #     action_users.append(user_actions)

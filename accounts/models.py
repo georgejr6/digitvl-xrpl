@@ -219,6 +219,10 @@ class Profile(models.Model):
     def username(self):
         return self.user.username
 
+    @property
+    def get_subscription_badge(self):
+        return self.user.membership_plan.subscription_badge
+
     def __str__(self):
         return f'Profile for user {self.user.username}'
 
