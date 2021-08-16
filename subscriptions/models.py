@@ -48,6 +48,10 @@ class UserMembership(models.Model):
     def __str__(self):
         return self.user.username
 
+    @property
+    def get_customer_id(self):
+        return self.customer.id
+
 
 def post_save_user_membership_create(sender, instance, created, *args, **kwargs):
     try:

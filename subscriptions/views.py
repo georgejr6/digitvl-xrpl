@@ -1,17 +1,21 @@
+import os
+
 import djstripe
 import stripe
 from django.conf import settings
-from django.shortcuts import render
+from django.http import JsonResponse
+from django.shortcuts import render, get_object_or_404
 
 # Create your views here.
-from djstripe import webhooks
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
 from rest_framework import views, status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from accounts.models import User
 from accounts.serializers import GetFullUserSerializer
 from subscriptions.models import UserSubscription, UserMembership, Membership
-from subscriptions.serializers import UserMembershipSerializer, StripeSubscriptionSerializer
+from subscriptions.serializers import UserMembershipSerializer
 from subscriptions.tasks import send_email_after_subscription
 
 stripe.api_version = '2020-08-27'
@@ -42,8 +46,7 @@ def get_user_membership(request):
 
 
 def get_user_subscription(request):
-    user_subscription_qs = UserSubscription.objects.filter(
-        user_membership=get_user_membership(request))
+    user_subscription_qs = UserSubscription.objects.filter(user_membership=get_user_membership(request))
     if user_subscription_qs.exists():
         user_subscription = user_subscription_qs.first()
         return user_subscription
@@ -55,11 +58,11 @@ def get_user_subscription(request):
 class CreateSubscriptionApiView(views.APIView):
     stripe.api_key = settings.STRIPE_TEST_SECRET_KEY
     permission_classes = [IsAuthenticated]
-    domain_url = "https://5dc252adc1bd.ngrok.io/"
 
     def post(self, request, *args, **kwargs):
         try:
             price = request.data['price']
+            customer_id = request.data['customer_id']
 
             # Create new Checkout Session for the order
             # Other optional params include:
@@ -74,8 +77,8 @@ class CreateSubscriptionApiView(views.APIView):
                 success_url='http://localhost:3000/success-sub/{CHECKOUT_SESSION_ID}',
                 cancel_url='http://localhost:3000/cancel-sub',
                 payment_method_types=['card'],
+                customer=customer_id,
                 allow_promotion_codes=True,
-                # customer=customer,
                 mode='subscription',
                 metadata={'price_id': price},
                 line_items=[{
@@ -101,7 +104,6 @@ class GetCheckoutSession(views.APIView):
             id = session_id
             checkout_session = stripe.checkout.Session.retrieve(id)
             customer = stripe.Customer.retrieve(id=checkout_session.customer)
-            print(checkout_session)
 
             selected_membership = Membership.objects.get(stripe_plan_id='price_1J0ivNI4e8u2GP8qVIhItBc7')
 
@@ -216,44 +218,166 @@ class GetCheckoutSessionData(views.APIView):
         except Exception as e:
             return views.Response({'error': {'message': str(e)}}, status=status.HTTP_200_OK)
 
-#
+
+class CreateCustomerPortalApiView(views.APIView):
+    permission_classes = [IsAuthenticated]
+
+    # Authenticate your user.
+    def post(self, request, *args, **kwargs):
+        try:
+            customer_id = request.data['customer_id']
+            print(customer_id)
+            session = stripe.billing_portal.Session.create(customer=customer_id,
+                                                           return_url='http://127.0.0.1:3000')
+            print(session)
+            return views.Response(session, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return views.Response({'error': {'message': str(e)}}, status=status.HTTP_200_OK)
+
+
 # class WebhookReceivedAPiView(views.APIView):
+#     permission_classes = [AllowAny]
+#
 #     # You can use webhooks to receive information about asynchronous payment events.
 #     # For more about our webhook events check out https://stripe.com/docs/webhooks.
-#     def get(self, request, *args, **kwargs):
+#     def post(self, request, *args, **kwargs):
 #         webhook_secret = os.getenv('STRIPE_WEBHOOK_SECRET')
 #         request_data = request.data
+#         try:
+#             if webhook_secret:
+#                 # Retrieve the event by verifying the signature using the raw body and secret if webhook signing is
+#                 # configured.
+#                 signature = request.headers.get('stripe-signature')
+#                 try:
+#                     event = stripe.Webhook.construct_event(
+#                         payload=request.data, sig_header=signature, secret=webhook_secret)
+#                     data = event['data']
+#                 except Exception as e:
+#                     return views.Response({'error': {'message': str(e)}}, status=status.HTTP_200_OK)
+#                 # Get the type of webhook event sent - used to check the status of PaymentIntents.
+#                 event_type = event['type']
+#             else:
+#                 data = request_data['data']
+#                 event_type = request_data['type']
+#             data_object = data['object']
 #
-#         if webhook_secret:
-#             # Retrieve the event by verifying the signature using the raw body and secret if webhook signing is
-#             # configured.
-#             signature = request.headers.get('stripe-signature')
-#             try:
-#                 event = stripe.Webhook.construct_event(
-#                     payload=request.data, sig_header=signature, secret=webhook_secret)
-#                 data = event['data']
-#             except Exception as e:
-#                 return e
-#             # Get the type of webhook event sent - used to check the status of PaymentIntents.
-#             event_type = event['type']
-#         else:
-#             data = request_data['data']
-#             event_type = request_data['type']
-#         data_object = data['object']
+#             print('event ' + event_type)
 #
-#         print('event ' + event_type)
+#             if event_type == 'checkout.session.completed':
+#                 print('🔔 Payment succeeded!')
 #
-#         if event_type == 'checkout.session.completed':
-#             print('🔔 Payment succeeded!')
+#             if event_type == 'customer.subscription.deleted':
+#                 print('🔔 subscription deleted!')
+#                 # print(data_object.customer)
+#                 free_membership = get_object_or_404(Membership, membership_type='Free')
 #
-#         if event_type == 'customer.subscription.deleted':
-#             print('🔔 subscription deleted')
+#                 # create stripe customer
+#                 stripe_customer = stripe.Customer.retrieve(
+#                     id=data_object.customer
+#                 )
 #
-#         if event_type == 'customer.subscription.updated':
-#             print('🔔 subscription updated')
+#                 djstripe_customer = djstripe.models.Customer.sync_from_stripe_data(stripe_customer)
 #
-#         if event_type == 'billing_portal.configuration.created':
-#             print(' handle billing portal info  ')
+#                 user_membership = UserMembership.objects.filter(customer__id=data_object.customer).update(
+#                     membership=free_membership, volume_remaining=free_membership.storage_size,
+#                     customer=djstripe_customer)
+#                 print(user_membership)
 #
-#         if event_type == 'billing_portal.configuration.updated':
-#             print(' billing portal updated ')
+#                 stripe_subscription = stripe.Subscription.create(
+#                     customer=stripe_customer["id"],
+#                     items=[{'price': 'price_1J58GBI4e8u2GP8qTZSw4HSi'}],
+#
+#                 )
+#                 # sync data with subscription dj stripe
+#                 djstripe_subscription = djstripe.models.Subscription.sync_from_stripe_data(stripe_subscription)
+#
+#                 subscription_data = djstripe_subscription
+#
+#                 UserSubscription.objects.filter(user_membership=user_membership).update(
+#                     stripe_subscription_id=stripe_subscription["id"], subscription=subscription_data, active=False)
+#
+#             if event_type == 'customer.subscription.updated':
+#                 print('🔔 subscription updated')
+#
+#             if event_type == 'billing_portal.configuration.created':
+#                 print(' handle billing portal info  ')
+#
+#             if event_type == 'billing_portal.configuration.updated':
+#                 print(' billing portal updated ')
+#
+#         except Exception as e:
+#             return views.Response({'error': {'message': str(e)}}, status=status.HTTP_200_OK)
+
+@require_http_methods(["POST"])
+@csrf_exempt
+def webhook_received(request):
+    print("----------------- webhook --------------------------")
+    # You can use webhooks to receive information about asynchronous payment events.
+    # For more about our webhook events check out https://stripe.com/docs/webhooks.
+    # webhook_secret = 'whsec_hfYNR1lj6LT86nCaJCYYPfFs2WlSmEZu'
+    webhook_secret = 'whsec_hfYNR1lj6LT86nCaJCYYPfFs2WlSmEZu'
+    request_data = request.body
+
+    if webhook_secret:
+        # Retrieve the event by verifying the signature using the raw body and secret if webhook signing is configured.
+        signature = request.headers.get('stripe-signature')
+        try:
+            event = stripe.Webhook.construct_event(
+                payload=request.body, sig_header=signature, secret=webhook_secret)
+            data = event['data']
+        except Exception as e:
+            return e
+        # Get the type of webhook event sent - used to check the status of PaymentIntents.
+        event_type = event['type']
+    else:
+        data = request_data['data']
+        event_type = request_data['type']
+    data_object = data['object']
+
+    print('event ' + event_type)
+
+    if event_type == 'checkout.session.completed':
+        print('🔔 Payment succeeded!')
+
+    if event_type == 'customer.subscription.deleted':
+        print('🔔 subscription deleted!')
+        print(data_object.customer)
+        free_membership = get_object_or_404(Membership, membership_type='Free')
+
+        # create stripe customer
+        stripe_customer = stripe.Customer.retrieve(
+            id=data_object.customer
+        )
+
+        djstripe_customer = djstripe.models.Customer.sync_from_stripe_data(stripe_customer)
+
+        user_membership = UserMembership.objects.filter(customer__id=data_object.customer).update(
+            membership=free_membership, volume_remaining=free_membership.storage_size,
+            customer=djstripe_customer, subscription_badge=False)
+        print(user_membership)
+
+        stripe_subscription = stripe.Subscription.create(
+            customer=stripe_customer["id"],
+            items=[{'price': 'price_1J58GBI4e8u2GP8qTZSw4HSi'}],
+
+        )
+
+        # sync data with subscription dj stripe
+        djstripe_subscription = djstripe.models.Subscription.sync_from_stripe_data(stripe_subscription)
+
+        subscription_data = djstripe_subscription
+
+        update_subscription = UserSubscription.objects.filter(
+            user_membership=user_membership
+        ).update(stripe_subscription_id=stripe_subscription["id"], subscription=subscription_data, active=False)
+
+    if event_type == 'billing_portal.configuration.created':
+        print(' handle billing portal info  ')
+        print(data)
+
+    if event_type == 'billing_portal.configuration.updated':
+        print(' billing portal updated ')
+        print(data)
+
+    return JsonResponse({'status': 'success'})

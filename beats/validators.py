@@ -5,7 +5,7 @@ from django.template.context_processors import request
 from accounts.models import User
 
 FILE_FORMATS = {
-    "audio": ['mp3', 'mpa', 'oga', 'wma', ],
+    "audio": ['mp3', 'mpa', 'oga', 'wma', 'wav'],
     "image": ['jpeg', 'jpg', 'webp', 'gif', 'png', 'svg', ],
 }
 

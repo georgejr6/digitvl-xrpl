@@ -31,9 +31,10 @@ class UserSubscriptionSerializer(serializers.ModelSerializer):
 
 class UserMembershipSerializer(serializers.ModelSerializer):
     membership = MembershipSerializer(read_only=True)
+
     # user_membership_subscription = UserSubscriptionSerializer(read_only=True, many=True)
 
     class Meta:
         model = UserMembership
-        fields = ['id', 'user', 'membership', 'volume_remaining', 'customer',
+        fields = ['id', 'user', 'membership', 'volume_remaining', 'customer', 'get_customer_id',
                   'subscription_badge']
