@@ -30,13 +30,16 @@ redis_cache = redis.StrictRedis(host=settings.REDIS_HOST,
                                 db=settings.REDIS_DB)
 
 
-@api_view(['GET'])
-def current_user(request):
-    """
-    Determine the current user by their token, and return their data
-    """
-    serializer = GetFullUserSerializer(request.user)
-    return Response(serializer.data)
+class CurrentUserApiView(views.APIView):
+    permission_classes = [IsAuthenticated]
+    queryset = User.objects.all()
+
+    def get(self, request, *args, **kwargs):
+        """
+        Determine the current user by their token, and return their data
+        """
+        serializer = GetFullUserSerializer(request.user, context={'request': request})
+        return Response(serializer.data)
 
 
 class UserList(APIView):

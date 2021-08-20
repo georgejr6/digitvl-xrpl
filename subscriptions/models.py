@@ -100,7 +100,8 @@ post_save.connect(post_save_user_membership_create, sender=settings.AUTH_USER_MO
 
 
 class UserSubscription(models.Model):
-    user_membership = models.ForeignKey(UserMembership, related_name="user_membership_subscription", on_delete=models.CASCADE)
+    user_membership = models.ForeignKey(UserMembership, related_name="user_membership_subscription",
+                                        on_delete=models.CASCADE)
     stripe_subscription_id = models.CharField(max_length=40, null=True, blank=True)
     subscription = models.ForeignKey(Subscription, null=True, blank=True, on_delete=models.SET_NULL)
     active = models.BooleanField(default=True)
@@ -115,3 +116,11 @@ class UserSubscription(models.Model):
     @property
     def get_next_billing_date(self):
         return self.subscription.current_period_end
+
+    @property
+    def get_plan(self):
+        return self.subscription.plan.product.name
+
+    @property
+    def get_payment_method(self):
+        return self.subscription.default_payment_method

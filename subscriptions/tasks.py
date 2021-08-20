@@ -98,7 +98,7 @@ def send_email_after_subscription(data):
     headers = {'Reply-To': 'noreply.digitvlhub@gmail.com'}
     mail_subject = "Subscription Successfully"
     html_message = get_template(email_template_html)
-    body = 'Thank you for upgrading to a DIGITVL Priemiere Artist Included in this monthly subscription are the following' \
+    body = 'Thank you for upgrading to a DIGITVL Priemiere Artist, Included in this monthly subscription are the following' \
            '- Unlimited upload time for your audio uploads' \
            '- A DIGTVL Priemiere verified badge that will highlight your profile throughout the platform' \
            '- The ability to accept artist donations on your profile (coming soon)' \

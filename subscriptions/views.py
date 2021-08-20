@@ -3,19 +3,19 @@ import os
 import djstripe
 import stripe
 from django.conf import settings
-from django.http import JsonResponse
-from django.shortcuts import render, get_object_or_404
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
 
 # Create your views here.
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from rest_framework import views, status
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated
 
 from accounts.models import User
 from accounts.serializers import GetFullUserSerializer
 from subscriptions.models import UserSubscription, UserMembership, Membership
-from subscriptions.serializers import UserMembershipSerializer
+from subscriptions.serializers import UserSubscriptionSerializer
 from subscriptions.tasks import send_email_after_subscription
 
 stripe.api_version = '2020-08-27'
@@ -24,16 +24,14 @@ stripe.api_version = '2020-08-27'
 # getting details of the user subscription plan
 class UserSubscriptionDetail(views.APIView):
     permission_classes = [IsAuthenticated]
-    serializer_class = UserMembershipSerializer
-
-    # create_serializer_class = CreateInviteBrandSerializer
+    serializer_class = UserSubscriptionSerializer
 
     def get(self, request, *args, **kwargs):
         user_subscription = UserSubscription.objects.filter(user_membership__user__username=request.user.username)
-        print(user_subscription)
+
         resp_obj = dict(
             subcription_data=self.serializer_class(user_subscription, context={"request": request}, many=True).data,
-
+              
         )
         return views.Response(resp_obj, status=status.HTTP_200_OK)
 
@@ -121,9 +119,9 @@ class GetCheckoutSession(views.APIView):
             djstripe_subscription = djstripe.models.Subscription.sync_from_stripe_data(subscription)
 
             # for email purpose
-            data = {'username': user_membership.user.username, 'email': user_membership.user.email,
-                    'subscription_plan': subscription.plan.product}
-            send_email_after_subscription.delay(data)
+            # data = {'username': user_membership.user.username, 'email': user_membership.user.email,
+            #         'subscription_plan': subscription.plan.product}
+            # send_email_after_subscription.delay(data)
 
             # subscription.subscription.plan.product -> fetch the plan name
 
@@ -144,60 +142,6 @@ class GetCheckoutSession(views.APIView):
             return views.Response(resp_obj, status=status.HTTP_200_OK)
         except Exception as e:
             return views.Response({'error': {'message': str(e)}}, status=status.HTTP_200_OK)
-
-
-# class CreateSubscriptionApiView(views.APIView):
-#     permission_classes = [IsAuthenticated]
-#
-#     def post(self, request, *args, **kwargs):
-#
-#         stripe.api_key = djstripe.settings.STRIPE_SECRET_KEY
-#
-#         current_user_membership_obj = get_user_membership(request)
-#         user_subscription = get_user_subscription(request)
-#         # get current user membership as a str
-#         current_user_membership = str(current_user_membership_obj.membership)
-#         selected_membership = request.data.get('membership_type')
-#
-#         # fetch the selected membership object
-#         selected_membership_qs = Membership.objects.filter(membership_type=selected_membership)
-#
-#         # check membership exists or not
-#         if selected_membership_qs.exists():
-#             selected_membership = selected_membership_qs.first()
-#
-# # validation if current_user_membership == selected_membership: if user_subscription is not None: message = f"you
-# already have this membership, your next payment is due' {'get this value from stripe'}" try:
-# current_user_membership_obj.membership = selected_membership_qs
-#
-#             # update stripe customer
-#             stripe_customer = stripe.Customer.modify(
-#                 sid=current_user_membership_obj.customer.id,
-#                 email=current_user_membership_obj.user.email,
-#             )
-#             djstripe_customer = djstripe.models.Customer.sync_from_stripe_data(stripe_customer)
-#             current_user_membership_obj.customer = djstripe_customer
-#             current_user_membership_obj.save()
-#
-#             stripe_subscription = stripe.Subscription.modify(
-#                 sid=user_subscription.stripe_subscription_id,
-#                 customer=current_user_membership_obj.customer.id,
-#                 items=[{'price': 'price_1J0ivNI4e8u2GP8qVIhItBc7'}],
-#             )
-#             # sync data with subscription dj stripe
-#             djstripe_subscription = djstripe.models.Subscription.sync_from_stripe_data(stripe_subscription)
-#
-#             subscription_data = djstripe_subscription
-#             subscription = UserSubscription.objects.update(
-#                 user_membership=current_user_membership_obj,
-#                 stripe_subscription_id=stripe_subscription["id"],
-#                 subscription=subscription_data
-#
-#             )
-#             subscription.save()
-#
-#         except Exception as e:
-#             print("your card has been declined")
 
 
 class GetCheckoutSessionData(views.APIView):
@@ -226,7 +170,7 @@ class CreateCustomerPortalApiView(views.APIView):
     def post(self, request, *args, **kwargs):
         try:
             customer_id = request.data['customer_id']
-            print(customer_id)
+
             session = stripe.billing_portal.Session.create(customer=customer_id,
                                                            return_url='http://127.0.0.1:3000')
             print(session)
@@ -236,87 +180,13 @@ class CreateCustomerPortalApiView(views.APIView):
             return views.Response({'error': {'message': str(e)}}, status=status.HTTP_200_OK)
 
 
-# class WebhookReceivedAPiView(views.APIView):
-#     permission_classes = [AllowAny]
-#
-#     # You can use webhooks to receive information about asynchronous payment events.
-#     # For more about our webhook events check out https://stripe.com/docs/webhooks.
-#     def post(self, request, *args, **kwargs):
-#         webhook_secret = os.getenv('STRIPE_WEBHOOK_SECRET')
-#         request_data = request.data
-#         try:
-#             if webhook_secret:
-#                 # Retrieve the event by verifying the signature using the raw body and secret if webhook signing is
-#                 # configured.
-#                 signature = request.headers.get('stripe-signature')
-#                 try:
-#                     event = stripe.Webhook.construct_event(
-#                         payload=request.data, sig_header=signature, secret=webhook_secret)
-#                     data = event['data']
-#                 except Exception as e:
-#                     return views.Response({'error': {'message': str(e)}}, status=status.HTTP_200_OK)
-#                 # Get the type of webhook event sent - used to check the status of PaymentIntents.
-#                 event_type = event['type']
-#             else:
-#                 data = request_data['data']
-#                 event_type = request_data['type']
-#             data_object = data['object']
-#
-#             print('event ' + event_type)
-#
-#             if event_type == 'checkout.session.completed':
-#                 print('🔔 Payment succeeded!')
-#
-#             if event_type == 'customer.subscription.deleted':
-#                 print('🔔 subscription deleted!')
-#                 # print(data_object.customer)
-#                 free_membership = get_object_or_404(Membership, membership_type='Free')
-#
-#                 # create stripe customer
-#                 stripe_customer = stripe.Customer.retrieve(
-#                     id=data_object.customer
-#                 )
-#
-#                 djstripe_customer = djstripe.models.Customer.sync_from_stripe_data(stripe_customer)
-#
-#                 user_membership = UserMembership.objects.filter(customer__id=data_object.customer).update(
-#                     membership=free_membership, volume_remaining=free_membership.storage_size,
-#                     customer=djstripe_customer)
-#                 print(user_membership)
-#
-#                 stripe_subscription = stripe.Subscription.create(
-#                     customer=stripe_customer["id"],
-#                     items=[{'price': 'price_1J58GBI4e8u2GP8qTZSw4HSi'}],
-#
-#                 )
-#                 # sync data with subscription dj stripe
-#                 djstripe_subscription = djstripe.models.Subscription.sync_from_stripe_data(stripe_subscription)
-#
-#                 subscription_data = djstripe_subscription
-#
-#                 UserSubscription.objects.filter(user_membership=user_membership).update(
-#                     stripe_subscription_id=stripe_subscription["id"], subscription=subscription_data, active=False)
-#
-#             if event_type == 'customer.subscription.updated':
-#                 print('🔔 subscription updated')
-#
-#             if event_type == 'billing_portal.configuration.created':
-#                 print(' handle billing portal info  ')
-#
-#             if event_type == 'billing_portal.configuration.updated':
-#                 print(' billing portal updated ')
-#
-#         except Exception as e:
-#             return views.Response({'error': {'message': str(e)}}, status=status.HTTP_200_OK)
-
 @require_http_methods(["POST"])
 @csrf_exempt
 def webhook_received(request):
     print("----------------- webhook --------------------------")
     # You can use webhooks to receive information about asynchronous payment events.
     # For more about our webhook events check out https://stripe.com/docs/webhooks.
-    # webhook_secret = 'whsec_hfYNR1lj6LT86nCaJCYYPfFs2WlSmEZu'
-    webhook_secret = 'whsec_hfYNR1lj6LT86nCaJCYYPfFs2WlSmEZu'
+    webhook_secret = os.getenv('STRIPE_WEBHOOK_SECRET')
     request_data = request.body
 
     if webhook_secret:
@@ -338,7 +208,10 @@ def webhook_received(request):
     print('event ' + event_type)
 
     if event_type == 'checkout.session.completed':
-        print('🔔 Payment succeeded!')
+        user = User.objects.get(email=data_object.customer_email)
+        data = {'username': user.username, 'email': data_object.customer_email,
+                'subscription_plan': data_object.subscription.plan.product}
+        send_email_after_subscription.delay(data)
 
     if event_type == 'customer.subscription.deleted':
         print('🔔 subscription deleted!')
@@ -357,9 +230,9 @@ def webhook_received(request):
             customer=djstripe_customer, subscription_badge=False)
         print(user_membership)
 
-        stripe_subscription = stripe.Subscription.create(
+        stripe_subscription = stripe.Subscription.modify(
             customer=stripe_customer["id"],
-            items=[{'price': 'price_1J58GBI4e8u2GP8qTZSw4HSi'}],
+            items=[{'price': os.getenv('BASIC_PRICE_ID')}],
 
         )
 
@@ -380,4 +253,4 @@ def webhook_received(request):
         print(' billing portal updated ')
         print(data)
 
-    return JsonResponse({'status': 'success'})
+    return HttpResponse({'status': status.HTTP_200_OK})
