@@ -103,6 +103,8 @@ class CreatePurchaseCoinsApiView(views.APIView):
 
     def post(self, request, *args, **kwargs):
         price = request.data['price']
+        customer_email = request.data['email']
+        customer_id = request.data['customer_id']
         try:
             # Create new Checkout Session for the order
             # Other optional params include:
@@ -116,11 +118,14 @@ class CreatePurchaseCoinsApiView(views.APIView):
             checkout_session = stripe.checkout.Session.create(
                 success_url='http://localhost:3000/successbuyc/{CHECKOUT_SESSION_ID}',
                 cancel_url='http://localhost:3000/cancelbuyc',
-                payment_method_types=['card'],
+                customer=customer_id,
+                customer_email=customer_email,
                 allow_promotion_codes=True,
+                payment_method_types=['card'],
+
                 mode='payment',
                 line_items=[{
-                    'price': 'price_1JAXgAI4e8u2GP8q67oEupda',
+                    'price': price,
                     'quantity': 1,
 
                 }],
@@ -139,21 +144,20 @@ class GetPurchaseCoinsCheckoutSession(views.APIView):
             id = session_id
             checkout_session = stripe.checkout.Session.retrieve(id)
 
-            line_items = stripe.checkout.Session.list_line_items(id, limit=1)
-            # print(line_items['data']['price']['id'])
-            print(line_items['data'][0]['price']['id'])
+            # line_items = stripe.checkout.Session.list_line_items(id, limit=1)
+            # # print(line_items['data'][0]['price']['id'])
+            #
+            # if line_items['data'][0]['price']['id'] == os.getenv('COIN_PRODUCT_100'):
+            #     coin_amount = redis_cache.hincrby('users:{}:coins'.format(request.user.id), request.user.id, 200)
+            resp_obj = dict(
+              #  coin_amount=coin_amount,
+                checkout_session=checkout_session
 
-            if line_items['data'][0]['price']['id'] == os.getenv('200_COIN_PRODUCT'):
-                coin_amount = redis_cache.hincrby('users:{}:coins'.format(request.user.id), request.user.id, 200)
-                resp_obj = dict(
-                    coin_amount=coin_amount,
-                    checkout_session=checkout_session
+            )
 
-                )
-
-                return views.Response(resp_obj, status=status.HTTP_200_OK)
-            else:
-                return views.Response({'error': {'message': 'no product found'}}, status=status.HTTP_200_OK)
+            return views.Response(resp_obj, status=status.HTTP_200_OK)
+            # else:
+            #     return views.Response({'error': {'message': 'no product found'}}, status=status.HTTP_200_OK)
 
         except Exception as e:
             return views.Response({'error': {'message': str(e)}}, status=status.HTTP_200_OK)

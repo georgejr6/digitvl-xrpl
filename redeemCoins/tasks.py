@@ -10,8 +10,8 @@ app = Celery('marketplace', broker='redis://localhost:6379/0')
 
 @shared_task
 def send_email_after_buying_coins(data):
-    email_template_html = 'users/emails/send_subscription_message.html'
-    sender = '"Digitvl" <noreply.digitvlhub@gmail.com>'
+    email_template_html = 'users/emails/send-email_after_buying_coins.html'
+    sender = '"Digitvl" <dev.digitvl@gmail.com>'
     headers = {'Reply-To': 'noreply.digitvlhub@gmail.com'}
     mail_subject = "Successfully bought the coins"
     html_message = get_template(email_template_html)
@@ -19,7 +19,9 @@ def send_email_after_buying_coins(data):
            " By purchasing coins you'll be able to utilize and unlock features such as our Tweet function, " \
            "more upload time and feature song function. The more coins the more perks! Cheers!"
     template_context = {
-        'username': data['username']
+        'username': data['username'],
+        'body': body 
+
     }
     html_content = html_message.render(template_context)
     email = EmailMultiAlternatives(

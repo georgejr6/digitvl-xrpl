@@ -94,7 +94,7 @@ app = Celery('marketplace', broker='redis://localhost:6379/0')
 @shared_task
 def send_email_after_subscription(data):
     email_template_html = 'users/emails/send_subscription_message.html'
-    sender = '"Digitvl" <noreply.digitvlhub@gmail.com>'
+    sender = '"Digitvl" <dev.digitvl@gmail.com>'
     headers = {'Reply-To': 'noreply.digitvlhub@gmail.com'}
     mail_subject = "Subscription Successfully"
     html_message = get_template(email_template_html)
@@ -108,7 +108,9 @@ def send_email_after_subscription(data):
     }
     html_content = html_message.render(template_context)
     email = EmailMultiAlternatives(
-        subject=mail_subject, body="Welcome to Digitvl", from_email=sender, to=[data['email']], headers=headers
+        subject=mail_subject, body=body, from_email=sender, to=[data['email']], headers=headers
     )
     email.attach_alternative(html_content, 'text/html')
     email.send(fail_silently=True)
+
+

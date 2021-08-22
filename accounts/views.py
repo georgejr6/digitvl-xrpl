@@ -4,7 +4,6 @@ from django.contrib.auth import logout as django_logout
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions, status, views
 from rest_framework.authtoken.models import Token
-from rest_framework.decorators import api_view
 from rest_framework.generics import UpdateAPIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response

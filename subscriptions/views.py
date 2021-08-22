@@ -1,6 +1,7 @@
 import os
 
 import djstripe
+import redis
 import stripe
 from django.conf import settings
 from django.http import HttpResponse
@@ -11,14 +12,20 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from rest_framework import views, status
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 from accounts.models import User
 from accounts.serializers import GetFullUserSerializer
 from subscriptions.models import UserSubscription, UserMembership, Membership
 from subscriptions.serializers import UserSubscriptionSerializer
 from subscriptions.tasks import send_email_after_subscription
+from redeemCoins.tasks import send_email_after_buying_coins
 
 stripe.api_version = '2020-08-27'
+# connect to redis
+redis_cache = redis.StrictRedis(host=settings.REDIS_HOST,
+                                port=settings.REDIS_PORT,
+                                db=settings.REDIS_DB)
 
 
 # getting details of the user subscription plan
@@ -31,7 +38,7 @@ class UserSubscriptionDetail(views.APIView):
 
         resp_obj = dict(
             subcription_data=self.serializer_class(user_subscription, context={"request": request}, many=True).data,
-              
+
         )
         return views.Response(resp_obj, status=status.HTTP_200_OK)
 
@@ -61,6 +68,7 @@ class CreateSubscriptionApiView(views.APIView):
         try:
             price = request.data['price']
             customer_id = request.data['customer_id']
+            customer_email = request.data['email']
 
             # Create new Checkout Session for the order
             # Other optional params include:
@@ -76,6 +84,7 @@ class CreateSubscriptionApiView(views.APIView):
                 cancel_url='http://localhost:3000/cancel-sub',
                 payment_method_types=['card'],
                 customer=customer_id,
+                customer_email=customer_email,
                 allow_promotion_codes=True,
                 mode='subscription',
                 metadata={'price_id': price},
@@ -192,12 +201,12 @@ def webhook_received(request):
     if webhook_secret:
         # Retrieve the event by verifying the signature using the raw body and secret if webhook signing is configured.
         signature = request.headers.get('stripe-signature')
+
         try:
-            event = stripe.Webhook.construct_event(
-                payload=request.body, sig_header=signature, secret=webhook_secret)
+            event = stripe.Webhook.construct_event(payload=request.body, sig_header=signature, secret=webhook_secret)
             data = event['data']
         except Exception as e:
-            return e
+            return Response(status=400)
         # Get the type of webhook event sent - used to check the status of PaymentIntents.
         event_type = event['type']
     else:
@@ -207,7 +216,7 @@ def webhook_received(request):
 
     print('event ' + event_type)
 
-    if event_type == 'checkout.session.completed':
+    if event_type == 'customer.subscription.created':
         user = User.objects.get(email=data_object.customer_email)
         data = {'username': user.username, 'email': data_object.customer_email,
                 'subscription_plan': data_object.subscription.plan.product}
@@ -244,6 +253,21 @@ def webhook_received(request):
         update_subscription = UserSubscription.objects.filter(
             user_membership=user_membership
         ).update(stripe_subscription_id=stripe_subscription["id"], subscription=subscription_data, active=False)
+
+    if event_type == 'checkout.session.completed':
+
+        if data_object.metadata.product_id == os.getenv('COIN_PRODUCT_100'):
+            user = get_object_or_404(User, email=data_object.customer_email)
+            coin_amount = redis_cache.hincrby('users:{}:coins'.format(user.id), request.user.id, 100)
+            data = {'username': user.username, 'current_coin': coin_amount}
+            send_email_after_buying_coins.delay(data)
+        if data_object.metadata.product_id == os.getenv('COIN_PRODUCT_250'):
+            user = get_object_or_404(User, email=data_object.customer_email)
+            coin_amount = redis_cache.hincrby('users:{}:coins'.format(user.id), request.user.id, 100)
+
+        if data_object.metadata.product_id == os.getenv('COIN_PRODUCT_500'):
+            user = get_object_or_404(User, email=data_object.customer_email)
+            coin_amount = redis_cache.hincrby('users:{}:coins'.format(user.id), request.user.id, 100)
 
     if event_type == 'billing_portal.configuration.created':
         print(' handle billing portal info  ')
