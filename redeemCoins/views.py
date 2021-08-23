@@ -104,7 +104,7 @@ class CreatePurchaseCoinsApiView(views.APIView):
     def post(self, request, *args, **kwargs):
         price = request.data['price']
         customer_email = request.data['email']
-        customer_id = request.data['customer_id']
+        # customer_id = request.data['customer_id']
         try:
             # Create new Checkout Session for the order
             # Other optional params include:
@@ -118,11 +118,11 @@ class CreatePurchaseCoinsApiView(views.APIView):
             checkout_session = stripe.checkout.Session.create(
                 success_url='http://localhost:3000/successbuyc/{CHECKOUT_SESSION_ID}',
                 cancel_url='http://localhost:3000/cancelbuyc',
-                customer=customer_id,
+                # customer=customer_id,
                 customer_email=customer_email,
                 allow_promotion_codes=True,
                 payment_method_types=['card'],
-
+                metadata={"product_id": price},
                 mode='payment',
                 line_items=[{
                     'price': price,
@@ -130,7 +130,7 @@ class CreatePurchaseCoinsApiView(views.APIView):
 
                 }],
             )
-            print(checkout_session)
+
             return views.Response(checkout_session, status=status.HTTP_200_OK)
         except Exception as e:
             return views.Response({'error': {'message': str(e)}})
@@ -150,7 +150,7 @@ class GetPurchaseCoinsCheckoutSession(views.APIView):
             # if line_items['data'][0]['price']['id'] == os.getenv('COIN_PRODUCT_100'):
             #     coin_amount = redis_cache.hincrby('users:{}:coins'.format(request.user.id), request.user.id, 200)
             resp_obj = dict(
-              #  coin_amount=coin_amount,
+                #  coin_amount=coin_amount,
                 checkout_session=checkout_session
 
             )

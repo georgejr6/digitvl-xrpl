@@ -217,8 +217,9 @@ def webhook_received(request):
     print('event ' + event_type)
 
     if event_type == 'customer.subscription.created':
-        user = User.objects.get(email=data_object.customer_email)
-        data = {'username': user.username, 'email': data_object.customer_email,
+        # fetch detail from User Membership table
+        user_membership = get_object_or_404(UserMembership, customer__id=data_object.customer)
+        data = {'username': user_membership.user.username, 'email': user_membership.user.email,
                 'subscription_plan': data_object.subscription.plan.product}
         send_email_after_subscription.delay(data)
 
