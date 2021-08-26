@@ -23,6 +23,10 @@ redis_cache = redis.StrictRedis(host=settings.REDIS_HOST,
 
 
 class Songs(models.Model):
+    class ContentTypeChoices(models.IntegerChoices):
+        FREE = 1, "free"
+        EXCLUSIVE = 2, "paid members"
+
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='beats', on_delete=models.CASCADE)
     slug = models.SlugField(max_length=200, db_index=True)
     song_title = models.CharField(max_length=250)
@@ -41,6 +45,8 @@ class Songs(models.Model):
                                         blank=True)
     total_likes = models.PositiveIntegerField(db_index=True,
                                               default=0)
+    exclusive = models.PositiveSmallIntegerField(choices=ContentTypeChoices.choices,
+                                                 default=ContentTypeChoices.FREE)
 
     def __str__(self):
         return self.song_title
@@ -54,7 +60,8 @@ class Songs(models.Model):
         super().save(*args, **kwargs)
 
     def get_api_url(self, request=None):
-        return api_reverse('beat-detail', kwargs={'username_slug': self.user.username_slug, 'slug': self.slug}, request=request)
+        return api_reverse('beat-detail', kwargs={'username_slug': self.user.username_slug, 'slug': self.slug},
+                           request=request)
 
     @property
     def get_slug(self):

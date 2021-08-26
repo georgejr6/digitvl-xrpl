@@ -84,7 +84,6 @@ class CreateSubscriptionApiView(views.APIView):
                 cancel_url='http://localhost:3000/cancel-sub',
                 payment_method_types=['card'],
                 customer=customer_id,
-                customer_email=customer_email,
                 allow_promotion_codes=True,
                 mode='subscription',
                 metadata={'price_id': price},
@@ -111,8 +110,8 @@ class GetCheckoutSession(views.APIView):
             id = session_id
             checkout_session = stripe.checkout.Session.retrieve(id)
             customer = stripe.Customer.retrieve(id=checkout_session.customer)
-
-            selected_membership = Membership.objects.get(stripe_plan_id='price_1J0ivNI4e8u2GP8qVIhItBc7')
+            price_id = os.getenv('BASIC_PRICE_ID')
+            selected_membership = Membership.objects.get(stripe_plan_id=price_id)
 
             # fetch user data from UserMembership table
             user_membership = UserMembership.objects.get(user=request.user)
@@ -253,22 +252,27 @@ def webhook_received(request):
 
         update_subscription = UserSubscription.objects.filter(
             user_membership=user_membership
-        ).update(stripe_subscription_id=stripe_subscription["id"], subscription=subscription_data, active=False)
+        ).update(stripe_subscription_id=stripe_subscription["id"], subscription=subscription_data)
 
     if event_type == 'checkout.session.completed':
 
         if data_object.metadata.product_id == os.getenv('COIN_PRODUCT_100'):
             user = get_object_or_404(User, email=data_object.customer_email)
-            coin_amount = redis_cache.hincrby('users:{}:coins'.format(user.id), request.user.id, 100)
-            data = {'username': user.username, 'current_coin': coin_amount}
+            coin_amount = redis_cache.hincrby('users:{}:coins'.format(user.id), user.id, 100)
+            data = {'username': user.username, 'current_coin': coin_amount, 'email': user.email}
             send_email_after_buying_coins.delay(data)
+
         if data_object.metadata.product_id == os.getenv('COIN_PRODUCT_250'):
             user = get_object_or_404(User, email=data_object.customer_email)
-            coin_amount = redis_cache.hincrby('users:{}:coins'.format(user.id), request.user.id, 100)
+            coin_amount = redis_cache.hincrby('users:{}:coins'.format(user.id), user.id, 100)
+            data = {'username': user.username, 'current_coin': coin_amount, 'email': user.email}
+            send_email_after_buying_coins.delay(data)
 
         if data_object.metadata.product_id == os.getenv('COIN_PRODUCT_500'):
             user = get_object_or_404(User, email=data_object.customer_email)
-            coin_amount = redis_cache.hincrby('users:{}:coins'.format(user.id), request.user.id, 100)
+            coin_amount = redis_cache.hincrby('users:{}:coins'.format(user.id), user.id, 100)
+            data = {'username': user.username, 'current_coin': coin_amount, 'email': user.email}
+            send_email_after_buying_coins.delay(data)
 
     if event_type == 'billing_portal.configuration.created':
         print(' handle billing portal info  ')

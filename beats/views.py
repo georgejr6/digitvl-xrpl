@@ -24,6 +24,7 @@ from accounts.permission import IsOwnerOrReadOnly
 from accounts.serializers import ChildFullUserSerializer
 from feeds.utils import create_action, delete_action
 from .models import Songs, PlayList, Comment
+from .permissions import ExclusiveContentPermissionMixin, ExclusiveContentPermission
 from .serializers import SongSerializer, AddPlayListSerializer, BeatsUploadSerializer, CommentsSerializer, \
     ChildSongSerializer
 
@@ -144,7 +145,7 @@ class SongUpdate(RetrieveUpdateDestroyAPIView):
     def delete(self, request, *args, **kwargs):
         try:
             instance = self.get_object()
-            #delete_action(instance, instance.id)
+            # delete_action(instance, instance.id)
             instance.delete()
             content = {'status': True, 'message': {"Successfully song deleted"}}
             return Response(content, status=status.HTTP_200_OK)
@@ -398,3 +399,11 @@ class RelatedBeatsApiView(views.APIView):
 
         )
         return views.Response(resp_obj, status=status.HTTP_200_OK)
+
+
+# Exclusive Content
+@permission_classes([IsAuthenticated, ExclusiveContentPermission])
+class ExclusiveSongListView(ListAPIView):
+    pagination_class = StandardResultsSetPagination
+    queryset = Songs.objects.select_related('user').filter(exclusive=2)
+    serializer_class = ChildSongSerializer

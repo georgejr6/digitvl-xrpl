@@ -1,50 +1,54 @@
 """
  task to register user on stripe side
 """
+import os
+
 import djstripe
 import stripe
 from celery import shared_task, Celery
 from django.core.mail import EmailMultiAlternatives
+from django.shortcuts import get_object_or_404
 from django.template.loader import get_template
 
 from accounts.models import User
-from celery.contrib import rdb
+
+from subscriptions.models import Membership, UserMembership, UserSubscription
 
 app = Celery('marketplace', broker='redis://localhost:6379/0')
 
 
-#
 # run this task to make user's accounts on stripe
-# # @shared_task
-# # def register_user_on_stripe():
-# #     stripe.api_key = djstripe.settings.STRIPE_SECRET_KEY
-# #     user_email = User.objects.all()
-# #     for user in user_email:
-# #         free_trial_pricing = Membership.objects.get(membership_type='Free')
-# #         user = get_object_or_404(User, email=user.email)
-# #
-# #         # user_membership = UserMembership.objects.create(
-# #         #     user=user,
-# #         #     membership=free_trial_pricing,
-# #         # )
-# #         # subscription = Subscription.objects.create(
-# #         #     user_membership=user_membership,
-# #         #     pricing=free_trial_pricing
-# #         # )
-# #         stripe_customer = stripe.Customer.create(
-# #             email=user.email
-# #         )
-# #         stripe_subscription = stripe.Subscription.create(
-# #             customer=stripe_customer["id"],
-# #             items=[{'price': 'price_1J58GBI4e8u2GP8qTZSw4HSi'}],
-# #
-# #         )
-# #         # subscription.active = stripe_subscription["status"]
-# #         # subscription.stripe_subscription_id = stripe_subscription["id"]
-# #         # subscription.save()
-# #         # user.stripe_customer_id = stripe_customer["id"]
-# #         # user.save()
-#
+@shared_task
+def register_user_on_stripe():
+    try:
+        stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
+        user_email = User.objects.all()
+        for user in user_email:
+            user = get_object_or_404(User, email=user.email)
+
+            stripe_customer = stripe.Customer.create(
+                email=user.email
+            )
+            stripe_subscription = stripe.Subscription.create(
+                customer=stripe_customer["id"],
+                items=[{'price': os.getenv('Free_Product_ID')}],
+
+            )
+            djstripe_customer = djstripe.models.Customer.sync_from_stripe_data(stripe_customer)
+            djstripe_subscription = djstripe.models.Subscription.sync_from_stripe_data(stripe_subscription)
+
+            user_membership = UserMembership.objects.filter(user=user).update(
+
+                customer=djstripe_customer,
+
+            )
+            UserSubscription.objects.filter(user_membership=user_membership).update(
+                stripe_subscription_id=stripe_subscription["id"]
+                , subscription=djstripe_subscription)
+    except Exception as e:
+        print(e)
+
+
 #
 # @shared_task
 # def single_register_user_on_stripe(email):
@@ -94,7 +98,7 @@ app = Celery('marketplace', broker='redis://localhost:6379/0')
 @shared_task
 def send_email_after_subscription(data):
     email_template_html = 'users/emails/send_subscription_message.html'
-    sender = '"Digitvl" <dev.digitvl@gmail.com>'
+    sender = '"Digitvl" <noreply.digitvlhub@gmail.com>'
     headers = {'Reply-To': 'noreply.digitvlhub@gmail.com'}
     mail_subject = "Subscription Successfully"
     html_message = get_template(email_template_html)
@@ -112,5 +116,3 @@ def send_email_after_subscription(data):
     )
     email.attach_alternative(html_content, 'text/html')
     email.send(fail_silently=True)
-
-

@@ -99,7 +99,6 @@ class RedeemCoinsForFeaturedPlaylist(views.APIView):
 class CreatePurchaseCoinsApiView(views.APIView):
     stripe.api_key = settings.STRIPE_TEST_SECRET_KEY
     permission_classes = [IsAuthenticated]
-    domain_url = "https://5dc252adc1bd.ngrok.io/"
 
     def post(self, request, *args, **kwargs):
         price = request.data['price']
@@ -148,12 +147,14 @@ class GetPurchaseCoinsCheckoutSession(views.APIView):
             # # print(line_items['data'][0]['price']['id'])
             #
             # if line_items['data'][0]['price']['id'] == os.getenv('COIN_PRODUCT_100'):
-            #     coin_amount = redis_cache.hincrby('users:{}:coins'.format(request.user.id), request.user.id, 200)
+            coin_amount = redis_cache.hincrby('users:{}:coins'.format(request.user.id), request.user.id, 200)
             resp_obj = dict(
-                #  coin_amount=coin_amount,
+                coin_amount=coin_amount,
                 checkout_session=checkout_session
-
             )
+            user = User.objects.filter(email=request.user.email)
+            data = {'username': user.username, 'email': user.email, 'coin': coin_amount}
+            send_email_after_buying_coins.delay(data)
 
             return views.Response(resp_obj, status=status.HTTP_200_OK)
             # else:

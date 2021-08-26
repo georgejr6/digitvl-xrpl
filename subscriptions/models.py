@@ -1,3 +1,5 @@
+import os
+
 import djstripe
 import stripe
 import logging
@@ -55,7 +57,7 @@ class UserMembership(models.Model):
 
 def post_save_user_membership_create(sender, instance, created, *args, **kwargs):
     try:
-        stripe.api_key = settings.STRIPE_TEST_SECRET_KEY
+        stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
         with transaction.atomic():
             user_membership, created = UserMembership.objects.get_or_create(user=instance)
             if created:
@@ -74,7 +76,7 @@ def post_save_user_membership_create(sender, instance, created, *args, **kwargs)
 
                 stripe_subscription = stripe.Subscription.create(
                     customer=stripe_customer["id"],
-                    items=[{'price': 'price_1J58GBI4e8u2GP8qTZSw4HSi'}],
+                    items=[{'price': os.getenv('Free_Product_ID')}],
 
                 )
 

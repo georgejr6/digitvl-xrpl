@@ -1,7 +1,8 @@
 from django.urls import path
 from .views import SongCreate, SongListView, SongUpdate, BeatsLikeView, SongPlayCounterApiView, \
     BeatsDetailApiView, PlayListBeatAdded, ChildPlaylistView, BeatsSearchEngine, \
-    CommentApiView, ChillListApiView, BeatsUserLikesList, SongsRankingPlaysApiView, RandomSongList, RelatedBeatsApiView
+    CommentApiView, ChillListApiView, BeatsUserLikesList, SongsRankingPlaysApiView, RandomSongList,\
+    RelatedBeatsApiView, ExclusiveSongListView
 
 urlpatterns = [
     path('Songs/update/<int:id>/', SongUpdate.as_view(), name='song-update'),
@@ -23,5 +24,6 @@ urlpatterns = [
 
     path('random/songs/list/', RandomSongList.as_view(), name='random-song-list'),
     path('related/tracks/<str:slug>/songs/list/', RelatedBeatsApiView.as_view(), name='related-tracks'),
+    path('exclusive/songs/', ExclusiveSongListView.as_view(), name='exclusive-songs'),
 
 ]

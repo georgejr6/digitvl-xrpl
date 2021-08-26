@@ -5,7 +5,8 @@ from .models import Membership, UserMembership, UserSubscription
 
 
 class UserMembershipAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user','membership', 'volume_remaining')
+    list_display = ('id', 'user', 'membership', 'volume_remaining')
+    search_fields = ['user__email']
 
 
 admin.site.register(Membership)

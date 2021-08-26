@@ -54,7 +54,7 @@ class BeatsUploadSerializer(TaggitSerializer, serializers.ModelSerializer):
     class Meta:
         model = Songs
         fields = ['id', 'slug', 'song_title', 'genre', 'tags', 'description', 'store_link', 'photo_main', 'audio_file',
-                  'username', 'limit_remaining', 'get_subscription_badge']
+                  'username', 'limit_remaining', 'get_subscription_badge', 'exclusive']
 
     def get_slug(self, obj):
         return obj.slug
@@ -72,7 +72,7 @@ class SongSerializer(TaggitSerializer, serializers.ModelSerializer):
         model = Songs
         fields = ['id', 'slug', 'song_title', 'genre', 'tags', 'description', 'store_link', 'photo_main', 'audio_file',
                   'users_like', 'total_likes', 'plays_count',
-                  'url', 'username', 'username_slug', 'get_subscription_badge']
+                  'url', 'username', 'username_slug', 'get_subscription_badge', 'exclusive']
 
     def get_users_like(self, obj):
         request = self.context.get("request")
@@ -95,7 +95,7 @@ class ChildSongSerializer(serializers.ModelSerializer):
     class Meta:
         model = Songs
         fields = ['id', 'slug', 'song_title', 'description', 'total_likes', 'photo_main', 'audio_file',
-                  'username', 'username_slug', 'get_subscription_badge']
+                  'username', 'username_slug', 'get_subscription_badge', 'exclusive']
 
 
 class AddPlayListSerializer(serializers.ModelSerializer):
