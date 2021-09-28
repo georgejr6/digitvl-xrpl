@@ -27,7 +27,7 @@ class UserSubscriptionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserSubscription
-        fields = ['id', 'subscription', 'get_created_date', 'get_next_billing_date', 'get_plan', 'get_payment_method']
+        fields = ['id', 'subscription', 'get_created_date', 'get_next_billing_date', 'get_plan']
 
 
 class UserMembershipSerializer(serializers.ModelSerializer):

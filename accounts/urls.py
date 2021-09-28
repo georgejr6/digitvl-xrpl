@@ -1,5 +1,5 @@
 from django.urls import path
-
+from rest_framework_jwt.views import refresh_jwt_token
 from .views import ProfileUpdateAPIView, UserList, LogoutView, CurrentUserApiView, my_login, VerifyEmail, \
     ResetPasswordRequestView, ResetPasswordView, CounterCoinsApiView, GetUserCoinsApiView, SendEmailNonVerifiedAccount, \
     SendAnnouncementEmail, GetAllUsersApiView
@@ -21,6 +21,7 @@ urlpatterns = [
     path('account/send/email/unverified/', SendEmailNonVerifiedAccount.as_view(), name='non-verified-account'),
 
     path('send/announcement/', SendAnnouncementEmail.as_view(), name='send-announcement'),
-    path('users-data/', GetAllUsersApiView.as_view(), name='user-data')
+    path('users-data/', GetAllUsersApiView.as_view(), name='user-data'),
+    path('api-token-refresh/', refresh_jwt_token),
 
 ]

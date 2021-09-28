@@ -48,13 +48,21 @@ class BeatsUploadSerializer(TaggitSerializer, serializers.ModelSerializer):
     id = serializers.IntegerField(required=False)
     slug = serializers.SerializerMethodField()
     tags = NewTagListSerializerField()
-    photo_main = serializers.ImageField(required=True, validators=[FileExtensionValidator('image')])
-    audio_file = serializers.FileField(required=True, validators=[FileExtensionValidator('audio')])
+    user = serializers.PrimaryKeyRelatedField(read_only=True, default=serializers.CurrentUserDefault())
+    photo_main = serializers.ImageField(required=True)
+    audio_file = serializers.FileField(required=True)
 
     class Meta:
         model = Songs
-        fields = ['id', 'slug', 'song_title', 'genre', 'tags', 'description', 'store_link', 'photo_main', 'audio_file',
+        fields = ['id', 'slug', 'song_title', 'user', 'genre', 'tags', 'description', 'store_link', 'photo_main',
+                  'audio_file',
                   'username', 'limit_remaining', 'get_subscription_badge', 'exclusive']
+
+    def __init__(self, user, *args, **kwargs):
+        super(BeatsUploadSerializer, self).__init__(*args, **kwargs)
+        super().__init__(**kwargs)
+        self.fields["audio_file"].validators.append(FileExtensionValidator('audio', user))
+        self.fields["photo_main"].validators.append(FileExtensionValidator('image', user))
 
     def get_slug(self, obj):
         return obj.slug
@@ -64,8 +72,8 @@ class SongSerializer(TaggitSerializer, serializers.ModelSerializer):
     id = serializers.IntegerField(required=False)
     tags = NewTagListSerializerField()
     users_like = serializers.SerializerMethodField()
-    photo_main = serializers.ImageField(required=True, validators=[FileExtensionValidator('image')])
-    audio_file = serializers.FileField(required=True, validators=[FileExtensionValidator('audio')])
+    # photo_main = serializers.ImageField(required=True, validators=[FileExtensionValidator('image')])
+    # audio_file = serializers.FileField(required=True, validators=[FileExtensionValidator('audio')])
     url = serializers.SerializerMethodField()
 
     class Meta:

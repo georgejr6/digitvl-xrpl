@@ -264,13 +264,13 @@ def webhook_received(request):
 
         if data_object.metadata.product_id == os.getenv('COIN_PRODUCT_250'):
             user = get_object_or_404(User, email=data_object.customer_email)
-            coin_amount = redis_cache.hincrby('users:{}:coins'.format(user.id), user.id, 100)
+            coin_amount = redis_cache.hincrby('users:{}:coins'.format(user.id), user.id, 250)
             data = {'username': user.username, 'current_coin': coin_amount, 'email': user.email}
             send_email_after_buying_coins.delay(data)
 
         if data_object.metadata.product_id == os.getenv('COIN_PRODUCT_500'):
             user = get_object_or_404(User, email=data_object.customer_email)
-            coin_amount = redis_cache.hincrby('users:{}:coins'.format(user.id), user.id, 100)
+            coin_amount = redis_cache.hincrby('users:{}:coins'.format(user.id), user.id, 500)
             data = {'username': user.username, 'current_coin': coin_amount, 'email': user.email}
             send_email_after_buying_coins.delay(data)
 

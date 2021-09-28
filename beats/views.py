@@ -1,11 +1,13 @@
 # Create your views here.
+
 import redis
 from django.conf import settings
 from django.db.models import Q
+from django.contrib.postgres.search import TrigramSimilarity
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from notifications.signals import notify
-from rest_framework import status, response
+from rest_framework import status, response, filters
 from rest_framework import (
     views
 )
@@ -64,8 +66,18 @@ class StandardResultsSetPagination(PageNumberPagination):
 @permission_classes([AllowAny])
 class SongListView(ListAPIView):
     pagination_class = StandardResultsSetPagination
-    queryset = Songs.objects.select_related('user').all()
+    queryset = Songs.objects.select_related('user')
     serializer_class = ChildSongSerializer
+
+
+# custom search filter
+class SongFilter(filters.BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        print(request.GET["search"])
+        queryset = Songs.objects.annotate(
+            similarity=TrigramSimilarity('song_title', request.GET["search"]),
+        ).filter(similarity__gt=0.1).order_by('-similarity')
+        return queryset
 
 
 # search
@@ -74,7 +86,7 @@ class BeatsSearchEngine(ListAPIView):
     pagination_class = StandardResultsSetPagination
     queryset = Songs.objects.all()
     serializer_class = SongSerializer
-    filter_backends = [DjangoFilterBackend, SearchFilter]
+    filter_backends = [DjangoFilterBackend, SearchFilter, SongFilter]
     search_fields = ['song_title', 'description', 'tags__name', 'genre', 'user__username']
 
 
@@ -84,7 +96,7 @@ class SongCreate(views.APIView):
 
     def post(self, request, format=None):
         error_result = {}
-        serializer = BeatsUploadSerializer(data=request.data, context={'request': request})
+        serializer = BeatsUploadSerializer(user=request.user.id, data=request.data, context={'request': request})
         if serializer.is_valid():
 
             if self.request.user.membership_plan.volume_remaining <= 0:
@@ -118,9 +130,8 @@ class BeatsDetailView(RetrieveAPIView):
         return Songs.objects.all()
 
 
-"""View for user song update, if user delete the song we have to free the space limit that specific song holds before 
-deleting. """
-
+# view for user song update,
+# if user delete the song we have to free the space limit that specific song holds before deleting.
 
 class SongUpdate(RetrieveUpdateDestroyAPIView):
     permission_classes = [IsOwnerOrReadOnly]

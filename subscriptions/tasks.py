@@ -25,6 +25,7 @@ def register_user_on_stripe():
         user_email = User.objects.all()
         for user in user_email:
             user = get_object_or_404(User, email=user.email)
+            user = get_object_or_404(User, email=user.email, membership_plan__customer__id=None)
 
             stripe_customer = stripe.Customer.create(
                 email=user.email
@@ -93,6 +94,36 @@ def register_user_on_stripe():
 #     user.subscription = djstripe_subscription
 #     print("done")
 #     # user.save()
+
+
+@shared_task
+def register_user_on_stripe_no_customer_id():
+    try:
+        stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
+        user_email = User.objects.filter(membership_plan__customer__id=None)
+        for user in user_email:
+            user = get_object_or_404(User, email=user.email)
+            stripe_customer = stripe.Customer.create(
+                email=user.email
+            )
+            stripe_subscription = stripe.Subscription.create(
+                customer=stripe_customer["id"],
+                items=[{'price': os.getenv('Free_Product_ID')}],
+
+            )
+            djstripe_customer = djstripe.models.Customer.sync_from_stripe_data(stripe_customer)
+            djstripe_subscription = djstripe.models.Subscription.sync_from_stripe_data(stripe_subscription)
+
+            user_membership = UserMembership.objects.filter(user=user).update(
+
+                customer=djstripe_customer,
+
+            )
+            UserSubscription.objects.filter(user_membership=user_membership).update(
+                stripe_subscription_id=stripe_subscription["id"]
+                , subscription=djstripe_subscription)
+    except Exception as e:
+        print(e)
 
 
 @shared_task

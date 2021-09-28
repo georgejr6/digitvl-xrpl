@@ -15,7 +15,9 @@ from taggit.managers import TaggableManager
 from beats.utils import get_unique_slug
 from feeds.models import Action
 from subscriptions.models import UserMembership
-
+from .validators import (
+    FileExtensionValidator
+)
 # redis setting
 redis_cache = redis.StrictRedis(host=settings.REDIS_HOST,
                                 port=settings.REDIS_PORT,
@@ -46,7 +48,7 @@ class Songs(models.Model):
     total_likes = models.PositiveIntegerField(db_index=True,
                                               default=0)
     exclusive = models.PositiveSmallIntegerField(choices=ContentTypeChoices.choices,
-                                                 default=ContentTypeChoices.FREE)
+                                                         default=ContentTypeChoices.FREE)
 
     def __str__(self):
         return self.song_title
@@ -86,6 +88,7 @@ class Songs(models.Model):
     @property
     def plays_count(self):
         return redis_cache.get('beat:{}:plays'.format(self.id))
+
 
     class Meta:
         ordering = ('-created_at',)

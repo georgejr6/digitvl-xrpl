@@ -159,7 +159,9 @@ REST_FRAMEWORK = {
 # jwt
 JWT_AUTH = {
     'JWT_RESPONSE_PAYLOAD_HANDLER': 'marketplace.utils.my_jwt_response_handler',
-    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=30),
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=3),
+    'JWT_ALLOW_REFRESH': True,
+    'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=7),
 }
 
 AUTHENTICATION_BACKENDS = (

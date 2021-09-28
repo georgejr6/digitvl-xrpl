@@ -37,6 +37,7 @@ class CurrentUserApiView(views.APIView):
         """
         Determine the current user by their token, and return their data
         """
+
         serializer = GetFullUserSerializer(request.user, context={'request': request})
         return Response(serializer.data)
 
@@ -141,6 +142,8 @@ class LoginView(ObtainJSONWebToken):
                             status=status.HTTP_200_OK)
 
         token = res.get('token')
+        res['refresh_token'] = jwt_encode_handler(user)
+
         if current_coins:
             res['user']['coins'] = int(current_coins)
         else:
