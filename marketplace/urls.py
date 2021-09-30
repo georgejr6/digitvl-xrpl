@@ -18,6 +18,7 @@ urlpatterns = [
                   path('api/v1/', include('blogs.urls')),
                   path('api/v1/', include('invitation.urls')),
                   path('api/v1/', include('subscriptions.urls')),
+                  path('api/v1/', include('linktree.urls')),
                   path("stripe/", include("djstripe.urls", namespace="djstripe")),
 
 

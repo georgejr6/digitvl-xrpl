@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'invitation',
     'phonenumber_field',
     'notifications',
+    'linktree',
     'rest_framework.authtoken',
     'rest_auth',
     'django.contrib.sites',

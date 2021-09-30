@@ -2,10 +2,10 @@
 <project version="4">
   <component name="WebServers">
     <option name="servers">
-      <webServer id="43c041f5-a7c5-4dec-9b70-299e74cc565c" name="stagging">
-        <fileTransfer rootFolder="/home/pyapps/music-beats-novam" accessType="SFTP" host="143.244.161.35" port="22" sshConfigId="818181b0-8008-41f1-9452-3a5dcd9e3577" sshConfig="root@143.244.161.35:22 password">
+      <webServer id="926af294-499c-4efb-83e6-858c2c287313" name="stagging">
+        <fileTransfer accessType="SFTP" host="143.244.161.35" port="22" sshConfigId="b1af0803-1a13-4500-bd25-b85b919a9534" sshConfig="root@143.244.161.35:22 password">
           <advancedOptions>
-            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+            <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" />
           </advancedOptions>
         </fileTransfer>
       </webServer>
