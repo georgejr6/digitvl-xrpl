@@ -3,7 +3,7 @@
   <component name="WebServers">
     <option name="servers">
       <webServer id="926af294-499c-4efb-83e6-858c2c287313" name="stagging">
-        <fileTransfer accessType="SFTP" host="143.244.161.35" port="22" sshConfigId="b1af0803-1a13-4500-bd25-b85b919a9534" sshConfig="root@143.244.161.35:22 password">
+        <fileTransfer rootFolder="/home/djangoadmin/pyapps/music-beats-novam" accessType="SFTP" host="157.230.177.2" port="22" sshConfigId="b1af0803-1a13-4500-bd25-b85b919a9534" sshConfig="djangoadmin@157.230.177.2:22 password">
           <advancedOptions>
             <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" />
           </advancedOptions>

@@ -61,7 +61,7 @@ class UserList(APIView):
 
             token = Token.objects.get(user_id=user_data['id'])
 
-            absolute_url = 'https://' + 'digitvl.com/email-verify/' + str(token)
+            absolute_url = 'https://' + 'app.digitvl.com/email-verify/' + str(token)
             email_body = 'Hey' + user_data['username'] + ' use the link below to verify your email \n' \
                          + absolute_url
             data = {'email_body': email_body, 'to_email': user_data['email'], 'username': user_data['username'],
@@ -89,6 +89,7 @@ class ProfileUpdateAPIView(UpdateAPIView):
                                              partial=True, context={'request': request})  # set partial=True to
         # update a data partially
         if serializer.is_valid():
+
             serializer.save()
             output = "Successfully account updated"
             content1 = {'success': [output]}

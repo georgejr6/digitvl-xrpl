@@ -83,7 +83,7 @@ class UserSerializerWithToken(serializers.ModelSerializer):
         fields = (
             'token', 'id', 'username', 'username_slug', 'first_name', 'last_name', 'phone_number', 'email', 'password',
             'profile',
-            'membership_plan')
+            'membership_plan', 'algorand_public_address')
         extra_kwargs = {'password': {'write_only': True}}
 
     # def validate_password(self, value: str) -> str:

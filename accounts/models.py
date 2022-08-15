@@ -65,6 +65,7 @@ class User(AbstractUser):
     is_email_verified = models.BooleanField(default=False)
     email_verification_token = models.CharField(max_length=250, null=True, blank=True)
     username_slug = models.SlugField(max_length=200, db_index=True, blank=True, null=True)
+    algorand_public_address = models.CharField(max_length=255, null=True, blank=True)
 
     objects = UserManager()
     USERNAME_FIELD = 'email'

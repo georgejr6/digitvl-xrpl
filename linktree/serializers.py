@@ -1,11 +1,11 @@
 from rest_framework import serializers
-
 from linktree.models import LinkTree
+from accounts.serializers import ChildFullUserSerializer
 
 
 class LinkTreeSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(required=False)
-    artist = serializers.PrimaryKeyRelatedField(read_only=True)
+    artist = ChildFullUserSerializer(read_only=True)
 
     class Meta:
         model = LinkTree

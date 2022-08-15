@@ -1,10 +1,12 @@
+from django.db.models import Q
 from django.shortcuts import render, get_object_or_404
 
 # Create your views here.
 from rest_framework import views, status
-from rest_framework.generics import RetrieveUpdateDestroyAPIView
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.generics import RetrieveUpdateDestroyAPIView, ListAPIView
+from rest_framework.permissions import IsAuthenticated, AllowAny
 
+from accounts.models import User
 from linktree.models import LinkTree
 from linktree.permission import LinkUpdatePermission
 from linktree.serializers import LinkTreeSerializer, DataSerialzier
@@ -18,7 +20,7 @@ class LinkTreeCreateApiView(views.APIView):
         serializer = self.serializer_class(data=request.data)
 
         if serializer.is_valid(raise_exception=True):
-            # print(serializer.data['data'])
+            print(serializer.data['data'])
             for link_tree_data in serializer.data['data']:
                 LinkTree.objects.create(artist=request.user, title=link_tree_data['title'], url=link_tree_data['url'])
             return views.Response(serializer.data, status=status.HTTP_200_OK)
@@ -29,18 +31,47 @@ class LinkTreeCreateApiView(views.APIView):
         return views.Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class LinkCreateApiView(views.APIView):
+class GetLinkTreeApiView(views.APIView):
+    permission_classes = [AllowAny]
+    serializer_class = LinkTreeSerializer
+
+    def get(self, request, username_slug, *args, **kwargs):
+        link_tree_data = LinkTree.objects.filter(artist__username_slug=username_slug)
+        resp_obj = dict(
+            link_tree_data=self.serializer_class(link_tree_data, context={"request": request}, many=True).data,
+
+        )
+        return views.Response(resp_obj, status=status.HTTP_200_OK)
+
+    # def get_queryset(self):
+    #     """
+    #     """
+    #
+    #     username_params = self.request.query_params.get('username', None)
+    #     if username_params is not None:
+    #         queryset = LinkTree.objects.filter(artist__username=self.request.query_params.get('username', None))
+    #         return queryset
+    #     elif self.request.user is not None:
+    #         queryset = LinkTree.objects.filter(artist=self.request.user)
+    #         return queryset
+    #     return []
+
+
+class GetCurrentUserLinkTreeApiView(views.APIView):
     permission_classes = [IsAuthenticated]
     serializer_class = LinkTreeSerializer
 
-    def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data)
+    def get(self, request, *args, **kwargs):
+        user = User.objects.get(id=request.user.id)
 
-        if serializer.is_valid(raise_exception=True):
-            serializer.save(artist=self.request.user)
-            return views.Response(serializer.data, status=status.HTTP_200_OK)
+        print(user)
 
-        return views.Response(serializer.data, status=status.HTTP_200_OK)
+        link_tree_data = user.artists_url.all()
+        resp_obj = dict(
+            link_tree_data=self.serializer_class(link_tree_data, context={"request": request}, many=True).data,
+
+        )
+        return views.Response(resp_obj, status=status.HTTP_200_OK)
 
 
 class LinkUpdateApiView(RetrieveUpdateDestroyAPIView):
