@@ -1,6 +1,7 @@
 from django.urls import path
 
-from .views import RedeemCoinsForFeaturedSong, RedeemCoinsForFeaturedPlaylist, CreatePurchaseCoinsApiView, GetPurchaseCoinsCheckoutSession
+from .views import RedeemCoinsForFeaturedSong, RedeemCoinsForFeaturedPlaylist, CreatePurchaseCoinsApiView, \
+    GetPurchaseCoinsCheckoutSession
 
 urlpatterns = [
     path('redeem/coins/featured/track/<int:track_id>/', RedeemCoinsForFeaturedSong.as_view(), name='featured song'),
