@@ -19,6 +19,7 @@ urlpatterns = [
                   path('api/v1/', include('invitation.urls')),
                   path('api/v1/', include('subscriptions.urls')),
                   path('api/v1/', include('linktree.urls')),
+                  path('api/v1/', include('xrpwallet.urls')),
                   path("stripe/", include("djstripe.urls", namespace="djstripe")),
 
 

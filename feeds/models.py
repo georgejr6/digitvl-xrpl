@@ -30,4 +30,3 @@ class Action(models.Model):
     @property
     def get_created(self):
         return humanize.naturaltime(self.created)
-

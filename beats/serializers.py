@@ -56,13 +56,13 @@ class BeatsUploadSerializer(TaggitSerializer, serializers.ModelSerializer):
         model = Songs
         fields = ['id', 'slug', 'song_title', 'user', 'genre', 'tags', 'description', 'store_link', 'photo_main',
                   'audio_file',
-                  'username', 'limit_remaining', 'get_subscription_badge', 'exclusive']
+                  'username', 'limit_remaining', 'get_subscription_badge', 'exclusive_content']
 
-    def __init__(self, user, *args, **kwargs):
-        super(BeatsUploadSerializer, self).__init__(*args, **kwargs)
-        super().__init__(**kwargs)
-        self.fields["audio_file"].validators.append(FileExtensionValidator('audio', user))
-        self.fields["photo_main"].validators.append(FileExtensionValidator('image', user))
+    # def __init__(self, user, *args, **kwargs):
+    #     super(BeatsUploadSerializer, self).__init__(*args, **kwargs)
+    #     super().__init__(**kwargs)
+    #     self.fields["audio_file"].validators.append(FileExtensionValidator('audio', user))
+    #     self.fields["photo_main"].validators.append(FileExtensionValidator('image', user))
 
     def get_slug(self, obj):
         return obj.slug
@@ -71,7 +71,7 @@ class BeatsUploadSerializer(TaggitSerializer, serializers.ModelSerializer):
 class SongSerializer(TaggitSerializer, serializers.ModelSerializer):
     id = serializers.IntegerField(required=False)
     tags = NewTagListSerializerField()
-    users_like = serializers.SerializerMethodField()
+    user_like = serializers.SerializerMethodField()
     # photo_main = serializers.ImageField(required=True, validators=[FileExtensionValidator('image')])
     # audio_file = serializers.FileField(required=True, validators=[FileExtensionValidator('audio')])
     url = serializers.SerializerMethodField()
@@ -79,19 +79,15 @@ class SongSerializer(TaggitSerializer, serializers.ModelSerializer):
     class Meta:
         model = Songs
         fields = ['id', 'slug', 'song_title', 'genre', 'tags', 'description', 'store_link', 'photo_main', 'audio_file',
-                  'users_like', 'total_likes', 'plays_count',
-                  'url', 'username', 'username_slug', 'get_subscription_badge', 'exclusive']
+                  'user_like', 'total_likes', 'plays_count',
+                  'url', 'username', 'username_slug', 'get_subscription_badge', 'exclusive_content']
 
-    def get_users_like(self, obj):
+    def get_user_like(self, obj):
         request = self.context.get("request")
-        try:
-            user = request.user.id
-            if user:
-                return Songs.objects.filter(id=obj.id, users_like=user).exists()
-            else:
-                pass
-        except:
-            pass
+        if request.user.id:
+            return Songs.objects.filter(id=obj.id, users_like=request.user.id).exists()
+        else:
+            return False
 
     def get_url(self, obj):
         # request added to get complete "http://127.0.0.1:8000/api/songs/update/11"
@@ -100,10 +96,19 @@ class SongSerializer(TaggitSerializer, serializers.ModelSerializer):
 
 
 class ChildSongSerializer(serializers.ModelSerializer):
+    user_like = serializers.SerializerMethodField()
+
     class Meta:
         model = Songs
         fields = ['id', 'slug', 'song_title', 'description', 'total_likes', 'photo_main', 'audio_file',
-                  'username', 'username_slug', 'get_subscription_badge', 'exclusive']
+                  'username', 'username_slug', 'get_subscription_badge', 'exclusive_content', 'user_like']
+
+    def get_user_like(self, obj):
+        request = self.context.get("request")
+        if request.user.id:
+            return Songs.objects.filter(id=obj.id, users_like=request.user.id).exists()
+        else:
+            return False
 
 
 class AddPlayListSerializer(serializers.ModelSerializer):
