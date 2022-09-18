@@ -7,7 +7,7 @@ from rest_framework.authtoken.models import Token
 
 from rest_framework_jwt.settings import api_settings
 from subscriptions.serializers import UserMembershipSerializer
-from xrpwallet.serializers import UserXrpWalletDetail
+from xrpwallet.serializers import UserXrpWalletDetailSerializer
 from .models import User, Profile
 from beats.validators import (
     FileExtensionValidator
@@ -38,7 +38,7 @@ class SecondChildProfileSerializer(serializers.ModelSerializer):
 
 
 class ChildFullUserSerializer(serializers.ModelSerializer):
-    user_xrp_wallet = UserXrpWalletDetail(read_only=True)
+    user_xrp_wallet = UserXrpWalletDetailSerializer(read_only=True)
     profile = ChildProfileSerializer(read_only=True)
 
     class Meta:
@@ -48,7 +48,7 @@ class ChildFullUserSerializer(serializers.ModelSerializer):
 
 class GetFullUserSerializer(serializers.ModelSerializer):
     profile = ProfileSerializer(read_only=True)
-    user_xrp_wallet = UserXrpWalletDetail(read_only=True)
+    user_xrp_wallet = UserXrpWalletDetailSerializer(read_only=True)
     membership_plan = UserMembershipSerializer(read_only=True)
 
     class Meta:

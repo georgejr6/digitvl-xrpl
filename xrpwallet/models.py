@@ -11,4 +11,5 @@ class XRPWallet(BaseTimestampModel):
     xrp_public_address = models.CharField(max_length=500)
     # xrp_secret = models.CharField(max_length=255)
     xrp_balance = models.DecimalField(max_digits=12, decimal_places=2)
+    xrp_token_earn = models.DecimalField(max_digits=6, decimal_places=2, default=0)
     xrp_sequence = models.PositiveBigIntegerField()

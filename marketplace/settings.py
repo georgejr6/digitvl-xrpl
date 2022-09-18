@@ -270,7 +270,6 @@ CELERY_BEAT_SCHEDULE = {
 # santry setting for production error handle
 
 
-
 # Stripe setting
 stripe.api_version = '2020-08-27'
 STRIPE_TEST_PUBLIC_KEY = 'pk_test_utELKNNX5QjQt9BTmkHlD71N00RZapjJeQ'
